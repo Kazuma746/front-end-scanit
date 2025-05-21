@@ -12,6 +12,9 @@ const anthropic = new Anthropic({
 // Définition du modèle Claude à utiliser
 const MODEL = 'claude-3-5-haiku-20241022';
 
+// Configuration
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB limite maximale
+
 // Le système prompt pour l'analyse des CV
 const SYSTEM_PROMPT = `Tu es un expert en recrutement et en design de CV. Tu dois analyser un CV envoyé sous forme d'image (extrait d'un PDF) en examinant à la fois le contenu texte et la présentation visuelle complète.  
 Ton rapport doit être structuré en points clairs et inclure une évaluation précise des éléments suivants :
@@ -54,8 +57,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Aucune image fournie' }, { status: 400 });
     }
 
+    // Vérification de la taille de l'image
+    const imageSize = Buffer.from(imageBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64').length;
+    if (imageSize > MAX_IMAGE_SIZE) {
+      return NextResponse.json({ 
+        error: `L'image est trop volumineuse. Taille maximale: ${MAX_IMAGE_SIZE / (1024 * 1024)}MB` 
+      }, { status: 400 });
+    }
+
     try {
-      // Appel à l'API Anthropic Claude avec l'image
+      // Configuration timeout plus long
       const response = await anthropic.messages.create({
         model: MODEL,
         max_tokens: 4000,
@@ -91,14 +102,25 @@ export async function POST(request: NextRequest) {
         analysis, 
         sessionId 
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Erreur API Anthropic:', error);
+      
+      if (error.status === 429) {
+        return NextResponse.json({ 
+          error: 'Le service est temporairement surchargé. Veuillez réessayer dans quelques instants.' 
+        }, { status: 429 });
+      }
+      
       throw error;
     }
   } catch (error: any) {
     console.error('Erreur lors de l\'analyse du CV:', error);
     return NextResponse.json(
-      { error: `Erreur: ${error.message || 'Une erreur est survenue'}` },
-      { status: 500 }
+      { 
+        error: `Erreur: ${error.message || 'Une erreur est survenue'}`,
+        details: error.status === 429 ? 'Service temporairement surchargé' : undefined
+      },
+      { status: error.status || 500 }
     );
   }
 } 
