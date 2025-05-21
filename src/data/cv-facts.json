@@ -1,0 +1,52 @@
+{
+  "facts": [
+    {
+      "fact": "Les recruteurs passent en moyenne seulement 7,4 secondes à examiner un CV lors d'une première lecture.",
+      "source": "Étude Ladders, 2018"
+    },
+    {
+      "fact": "75% des grands groupes utilisent un ATS (Applicant Tracking System) pour filtrer automatiquement les CV.",
+      "source": "JobScan, 2023"
+    },
+    {
+      "fact": "98% des candidats sont éliminés par les ATS avant même qu'un recruteur ne voie leur CV.",
+      "source": "ResumeLab, 2023"
+    },
+    {
+      "fact": "41% des recruteurs rejettent un CV contenant des fautes d'orthographe.",
+      "source": "CV-Library"
+    },
+    {
+      "fact": "76% des CV sont rejetés à cause d'une photo non professionnelle.",
+      "source": "CareerBuilder"
+    },
+    {
+      "fact": "Un CV trop long réduit de 43% vos chances d'être contacté.",
+      "source": "ResumeLab, 2023"
+    },
+    {
+      "fact": "88% des CV contenant une photo sont plus susceptibles d'être consultés par les recruteurs.",
+      "source": "LinkedIn"
+    },
+    {
+      "fact": "Les CV avec des liens vers des profils LinkedIn reçoivent 71% plus de réponses.",
+      "source": "ResumeGrabber"
+    },
+    {
+      "fact": "63% des recruteurs veulent recevoir des CV d'une seule page.",
+      "source": "CareerBuilder"
+    },
+    {
+      "fact": "En moyenne, 250 candidats postulent pour un poste vacant.",
+      "source": "Glassdoor"
+    },
+    {
+      "fact": "85% des CV contiennent des informations mensongères.",
+      "source": "HireRight"
+    },
+    {
+      "fact": "Les mardis sont les meilleurs jours pour envoyer un CV, avec 20% de chances de plus d'obtenir un entretien.",
+      "source": "SmartRecruiters"
+    }
+  ]
+} 

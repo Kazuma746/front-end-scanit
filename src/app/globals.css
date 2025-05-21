@@ -52,3 +52,43 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+/* Styles pour le PDF viewer */
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.pdf-viewer .react-pdf__Document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+  padding: 1rem;
+}
+
+.pdf-viewer .react-pdf__Page {
+  max-width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  background-color: white;
+  border-radius: 0.25rem;
+}
+
+.pdf-viewer .react-pdf__Page canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Masquer les annotations par défaut */
+.pdf-viewer .react-pdf__Page__annotations {
+  display: none;
+}
+
+/* Style pour la couche de texte */
+.pdf-viewer .react-pdf__Page__textContent {
+  display: none;
+}
