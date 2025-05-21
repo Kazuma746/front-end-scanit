@@ -8,6 +8,7 @@ import PreparationStep from '@/components/PreparationStep';
 import PdfViewer from '@/components/PdfViewer';
 import AnalysisResults from '@/components/AnalysisResults';
 import AnalysisChat from '@/components/AnalysisChat';
+import AnalysisLoading from '@/components/AnalysisLoading';
 
 export default function AnalyzePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -127,14 +128,18 @@ export default function AnalyzePage() {
         {!file ? (
           <FileUpload onFileSelect={handleFileSelect} />
         ) : !analysis ? (
-          <PreparationStep
-            file={file}
-            conversionStep={conversionStep}
-            loading={loading}
-            error={error}
-            onImageGenerated={handleImageGenerated}
-            onAnalyze={handleAnalyze}
-          />
+          loading ? (
+            <AnalysisLoading />
+          ) : (
+            <PreparationStep
+              file={file}
+              conversionStep={conversionStep}
+              loading={loading}
+              error={error}
+              onImageGenerated={handleImageGenerated}
+              onAnalyze={handleAnalyze}
+            />
+          )
         ) : (
           <div className="md:grid md:grid-cols-2 md:gap-8">
             <div className="hidden md:block bg-white rounded-lg shadow-md p-6 h-[calc(100vh-200px)] sticky top-24">
