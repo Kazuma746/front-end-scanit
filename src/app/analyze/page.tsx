@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PdfToImage from '@/components/PdfToImage';
+import PdfViewer from '@/components/PdfViewer';
 import { FiUpload, FiCheckCircle, FiAlertCircle, FiFile } from 'react-icons/fi';
 
 export default function AnalyzePage() {
@@ -137,13 +138,13 @@ export default function AnalyzePage() {
           Analyse de CV
         </h1>
         
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
-          <div className="mb-10">
-            <h2 className="text-xl font-semibold text-secondary mb-4">
-              Téléchargez votre CV au format PDF
-            </h2>
-            
-            {!file ? (
+        {!file ? (
+          <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
+            <div className="mb-10">
+              <h2 className="text-xl font-semibold text-secondary mb-4">
+                Téléchargez votre CV au format PDF
+              </h2>
+              
               <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-10 bg-gray-50 cursor-pointer" 
                    onClick={() => fileInputRef.current?.click()}>
                 <input
@@ -160,132 +161,135 @@ export default function AnalyzePage() {
                   <p className="text-gray-400 text-sm mt-2">Taille maximale: 10 MB</p>
                 </div>
               </div>
-            ) : (
+            </div>
+          </div>
+        ) : !analysis ? (
+          // Affichage sur une colonne pendant la préparation et avant l'analyse
+          <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
+            <div className="flex items-center p-4 bg-gray-50 rounded-lg mb-4">
+              <FiFile className="text-primary mr-3" size={24} />
+              <div>
+                <p className="font-medium">{file.name}</p>
+                <p className="text-gray-500 text-sm">
+                  {(file.size / (1024 * 1024)).toFixed(2)} MB
+                </p>
+              </div>
+            </div>
+            
+            {conversionStep === 1 && (
               <div className="mt-4">
-                <div className="flex items-center p-4 bg-gray-50 rounded-lg mb-4">
-                  <FiFile className="text-primary mr-3" size={24} />
-                  <div>
-                    <p className="font-medium">{file.name}</p>
-                    <p className="text-gray-500 text-sm">
-                      {(file.size / (1024 * 1024)).toFixed(2)} MB
-                    </p>
-                  </div>
-                </div>
-                
-                {conversionStep === 1 && (
-                  <div className="mt-4">
-                    <h3 className="text-lg font-medium text-secondary mb-4">
-                      Préparation de votre CV pour l'analyse
-                    </h3>
-                    <PdfToImage pdfFile={file} onImageGenerated={handleImageGenerated} />
-                  </div>
-                )}
-                
-                {conversionStep === 2 && (
-                  <div className="mt-6">
-                    <div className="flex items-center mb-4">
-                      <FiCheckCircle className="text-green-500 mr-2" size={20} />
-                      <span className="font-medium">CV préparé pour l'analyse</span>
-                    </div>
-                    
-                    <button
-                      onClick={handleAnalyze}
-                      disabled={loading}
-                      className={`btn-primary w-full ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {loading ? 'Analyse en cours...' : 'Analyser mon CV'}
-                    </button>
-                  </div>
-                )}
-
-                <div className="mt-4">
-                  <button 
-                    onClick={() => {
-                      setFile(null);
-                      setConversionStep(0);
-                      setImageBase64(null);
-                      setAnalysis(null);
-                      setChatHistory([]);
-                    }}
-                    className="text-primary hover:underline"
-                  >
-                    Choisir un autre fichier
-                  </button>
-                </div>
+                <h3 className="text-lg font-medium text-secondary mb-4">
+                  Préparation de votre CV pour l'analyse
+                </h3>
+                <PdfToImage pdfFile={file} onImageGenerated={handleImageGenerated} />
               </div>
             )}
             
+            {conversionStep === 2 && (
+              <div className="mt-6">
+                <div className="flex items-center mb-4">
+                  <FiCheckCircle className="text-green-500 mr-2" size={20} />
+                  <span className="font-medium">CV préparé pour l'analyse</span>
+                </div>
+                
+                <button
+                  onClick={handleAnalyze}
+                  disabled={loading}
+                  className={`btn-primary w-full ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? 'Analyse en cours...' : 'Analyser mon CV'}
+                </button>
+              </div>
+            )}
+
             {error && (
-              <div className="flex items-center bg-red-50 text-red-500 p-3 rounded-md mt-4">
-                <FiAlertCircle className="mr-2" />
-                <span>{error}</span>
+              <div className="mt-6 p-4 bg-red-50 text-red-600 rounded-lg flex items-start">
+                <FiAlertCircle className="mr-2 mt-1 flex-shrink-0" />
+                <p>{error}</p>
               </div>
             )}
           </div>
-          
-          {analysis && (
-            <div className="mt-10">
-              <h2 className="text-xl font-semibold text-secondary mb-4">
-                Résultats de l'analyse
-              </h2>
-              
-              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: analysis.replace(/\n/g, '<br/>') }} />
+        ) : (
+          // Affichage sur deux colonnes une fois l'analyse effectuée
+          <div className="md:grid md:grid-cols-2 md:gap-8">
+            {/* Colonne de gauche - Affichage du PDF */}
+            <div className="hidden md:block bg-white rounded-lg shadow-md p-6 h-[calc(100vh-200px)] sticky top-24">
+              <PdfViewer file={file} />
+            </div>
+
+            {/* Colonne de droite - Analyse et chat */}
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <div className="flex items-center p-4 bg-gray-50 rounded-lg mb-4">
+                <FiFile className="text-primary mr-3" size={24} />
+                <div>
+                  <p className="font-medium">{file.name}</p>
+                  <p className="text-gray-500 text-sm">
+                    {(file.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
               </div>
-              
-              <div className="mt-10">
-                <h3 className="text-lg font-semibold text-secondary mb-4">
+
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold text-secondary mb-4">
+                  Résultats de l'analyse
+                </h3>
+                <div className="prose max-w-none">
+                  {analysis.split('\n').map((line, index) => (
+                    <p key={index} className="mb-2">{line}</p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section chat */}
+              <div className="mt-8 border-t pt-8">
+                <h3 className="text-xl font-semibold text-secondary mb-4">
                   Des questions sur l'analyse?
                 </h3>
                 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 h-80 overflow-y-auto mb-4">
-                  {chatHistory.map((msg, index) => (
+                <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
+                  {chatHistory.map((message, index) => (
                     <div
                       key={index}
-                      className={`mb-4 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}
+                      className={`p-4 rounded-lg ${
+                        message.role === 'assistant'
+                          ? 'bg-gray-50'
+                          : 'bg-primary text-white'
+                      }`}
                     >
-                      <div
-                        className={`inline-block rounded-lg p-3 max-w-[80%] ${
-                          msg.role === 'user'
-                            ? 'bg-primary text-white'
-                            : 'bg-gray-200 text-gray-800'
-                        }`}
-                      >
-                        <p dangerouslySetInnerHTML={{ __html: msg.content.replace(/\n/g, '<br/>') }} />
-                      </div>
+                      {message.content.split('\n').map((line, i) => (
+                        <p key={i} className="mb-2">{line}</p>
+                      ))}
                     </div>
                   ))}
-                  
-                  {chatLoading && (
-                    <div className="text-left mb-4">
-                      <div className="inline-block rounded-lg p-3 bg-gray-200 text-gray-800">
-                        <p>Rédaction de la réponse...</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
-                
-                <form onSubmit={handleChatSubmit} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    placeholder="Posez une question sur l'analyse de votre CV..."
-                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
-                    disabled={chatLoading}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!chatMessage.trim() || chatLoading}
-                    className={`btn-secondary ${(!chatMessage.trim() || chatLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    Envoyer
-                  </button>
+
+                <form onSubmit={handleChatSubmit} className="mt-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      placeholder="Posez une question sur l'analyse de votre CV..."
+                      className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      disabled={chatLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={chatLoading || !chatMessage.trim()}
+                      className={`btn-secondary ${
+                        chatLoading || !chatMessage.trim()
+                          ? 'opacity-50 cursor-not-allowed'
+                          : ''
+                      }`}
+                    >
+                      Envoyer
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
       <Footer />
     </>

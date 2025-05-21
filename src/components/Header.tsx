@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiMenu, FiX, FiUser, FiLogOut } from 'react-icons/fi';
+import { useScrollToSection } from '@/hooks/useScrollToSection';
 
 interface UserData {
   username: string;
@@ -16,6 +17,7 @@ const Header = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
+  const scrollToSection = useScrollToSection();
 
   useEffect(() => {
     // Vérifier si l'utilisateur est connecté au chargement du composant
@@ -72,12 +74,18 @@ const Header = () => {
 
         {/* Navigation - Desktop */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Link href="#features" className="font-medium hover:text-primary transition-colors">
+          <button 
+            onClick={() => scrollToSection('features')} 
+            className="font-medium hover:text-primary transition-colors"
+          >
             Fonctionnalités
-          </Link>
-          <Link href="#faq" className="font-medium hover:text-primary transition-colors">
+          </button>
+          <button 
+            onClick={() => scrollToSection('faq')} 
+            className="font-medium hover:text-primary transition-colors"
+          >
             FAQ
-          </Link>
+          </button>
           <Link href="/pricing" className="font-medium hover:text-primary transition-colors">
             Tarifs
           </Link>
@@ -135,20 +143,24 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-md z-40">
           <nav className="container py-4 flex flex-col space-y-4">
-            <Link 
-              href="#features" 
-              className="font-medium p-2 hover:bg-gray-100 rounded-md" 
-              onClick={toggleMenu}
+            <button 
+              onClick={() => {
+                scrollToSection('features');
+                toggleMenu();
+              }} 
+              className="font-medium p-2 hover:bg-gray-100 rounded-md text-left"
             >
               Fonctionnalités
-            </Link>
-            <Link 
-              href="#faq" 
-              className="font-medium p-2 hover:bg-gray-100 rounded-md" 
-              onClick={toggleMenu}
+            </button>
+            <button 
+              onClick={() => {
+                scrollToSection('faq');
+                toggleMenu();
+              }} 
+              className="font-medium p-2 hover:bg-gray-100 rounded-md text-left"
             >
               FAQ
-            </Link>
+            </button>
             <Link 
               href="/pricing" 
               className="font-medium p-2 hover:bg-gray-100 rounded-md" 
