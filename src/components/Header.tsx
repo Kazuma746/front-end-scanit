@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiMenu, FiX, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiMenu, FiX } from 'react-icons/fi';
 import { useScrollToSection } from '@/hooks/useScrollToSection';
+import UserButton from './ui/UserButton';
 
 interface UserData {
-  username: string;
+  userName: string;
   firstName: string;
   lastName: string;
 }
@@ -15,54 +16,41 @@ interface UserData {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const router = useRouter();
   const scrollToSection = useScrollToSection();
 
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté au chargement du composant
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des données utilisateur:', error);
+    const loadUser = () => {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          // Vérifier que l'objet a la bonne structure
+          if (typeof userData === 'object' && userData !== null && 'userName' in userData) {
+            setUser(userData);
+          } else {
+            throw new Error('Format des données utilisateur invalide');
+          }
+        } catch (error) {
+          console.error('Erreur lors de la récupération des données utilisateur:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+      } else {
+        setUser(null);
       }
-    }
+      setIsLoadingUser(false);
+    };
+
+    // Petit délai pour éviter le flash du bouton de chargement si les données sont déjà en cache
+    const timer = setTimeout(loadUser, 50);
+    return () => clearTimeout(timer);
   }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleLogout = async () => {
-    try {
-      // Appel à l'API de déconnexion
-      await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      
-      // Supprimer les données de l'utilisateur du localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
-      // Réinitialiser l'état
-      setUser(null);
-      
-      // Fermer le dropdown
-      setIsDropdownOpen(false);
-      
-      // Rediriger vers la page d'accueil
-      router.push('/');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
   };
 
   return (
@@ -93,41 +81,11 @@ const Header = () => {
             Contact
           </Link>
           
-          {user ? (
-            <div className="relative">
-              <button 
-                onClick={toggleDropdown}
-                className="flex items-center space-x-2 font-medium bg-secondary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors"
-              >
-                <span>{user.username || `${user.firstName} ${user.lastName}`}</span>
-                <FiUser />
-              </button>
-              
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-40">
-                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Mon profil
-                  </Link>
-                  <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Tableau de bord
-                  </Link>
-                  <button 
-                    onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <FiLogOut />
-                      <span>Déconnexion</span>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link href="/auth/login" className="btn-secondary">
-              Se connecter
-            </Link>
-          )}
+          <UserButton 
+            user={user}
+            isLoading={isLoadingUser}
+            onLogout={() => setUser(null)}
+          />
         </nav>
 
         {/* Mobile menu button */}
@@ -176,42 +134,15 @@ const Header = () => {
               Contact
             </Link>
             
-            {user ? (
-              <>
-                <Link 
-                  href="/profile" 
-                  className="font-medium p-2 hover:bg-gray-100 rounded-md" 
-                  onClick={toggleMenu}
-                >
-                  Mon profil
-                </Link>
-                <Link 
-                  href="/dashboard" 
-                  className="font-medium p-2 hover:bg-gray-100 rounded-md" 
-                  onClick={toggleMenu}
-                >
-                  Tableau de bord
-                </Link>
-                <button 
-                  onClick={() => {
-                    handleLogout();
-                    toggleMenu();
-                  }}
-                  className="font-medium p-2 hover:bg-gray-100 rounded-md text-left w-full flex items-center space-x-2"
-                >
-                  <FiLogOut />
-                  <span>Déconnexion</span>
-                </button>
-              </>
-            ) : (
-              <Link 
-                href="/auth/login" 
-                className="btn-secondary text-center" 
-                onClick={toggleMenu}
-              >
-                Se connecter
-              </Link>
-            )}
+            <UserButton 
+              user={user}
+              isLoading={isLoadingUser}
+              onLogout={() => {
+                setUser(null);
+                toggleMenu();
+              }}
+              className="w-full"
+            />
           </nav>
         </div>
       )}
