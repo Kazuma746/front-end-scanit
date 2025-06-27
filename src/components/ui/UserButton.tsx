@@ -1,13 +1,10 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiUser, FiLogOut } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
-
-interface UserData {
-  userName: string;
-  firstName: string;
-  lastName: string;
-}
+import type { UserData } from '@/store/slices/authSlice';
 
 interface UserButtonProps {
   user: UserData | null;
@@ -18,7 +15,12 @@ interface UserButtonProps {
 
 const UserButton = ({ user, isLoading = false, onLogout, className = '' }: UserButtonProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -30,9 +32,6 @@ const UserButton = ({ user, isLoading = false, onLogout, className = '' }: UserB
         method: 'POST',
         credentials: 'include',
       });
-      
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
       
       if (onLogout) {
         onLogout();
@@ -47,8 +46,8 @@ const UserButton = ({ user, isLoading = false, onLogout, className = '' }: UserB
 
   const baseButtonClasses = `min-w-[120px] h-[40px] flex items-center justify-center space-x-2 font-medium bg-secondary text-white px-4 py-2 rounded-md ${className}`;
 
-  // Pendant le chargement, on affiche un bouton désactivé avec un effet de loading
-  if (isLoading) {
+  // Pendant le chargement ou avant l'hydratation, on affiche un bouton désactivé avec un effet de loading
+  if (!mounted || isLoading) {
     return (
       <button 
         disabled
@@ -59,7 +58,7 @@ const UserButton = ({ user, isLoading = false, onLogout, className = '' }: UserB
     );
   }
 
-  // Si on a des données utilisateur, on les affiche même si le chargement n'est pas terminé
+  // Si on a des données utilisateur, on les affiche
   if (user?.userName) {
     return (
       <div className="relative">

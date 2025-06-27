@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/store/hooks';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FileUpload from '@/components/FileUpload';
@@ -11,6 +13,8 @@ import AnalysisChat from '@/components/AnalysisChat';
 import AnalysisLoading from '@/components/AnalysisLoading';
 
 export default function AnalyzePage() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAppSelector((state) => state.auth);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +25,13 @@ export default function AnalyzePage() {
   const [conversionStep, setConversionStep] = useState(0);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth/login');
+      return;
+    }
+  }, [user, authLoading, router]);
 
   const handleFileSelect = (selectedFile: File) => {
     setError(null);
@@ -76,46 +87,55 @@ export default function AnalyzePage() {
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!chatMessage.trim()) return;
-    
-    const newMessage = { role: 'user', content: chatMessage };
-    setChatHistory([...chatHistory, newMessage]);
+    if (!chatMessage.trim() || !imageBase64) return;
+
+    const userMessage = chatMessage.trim();
     setChatMessage('');
     setChatLoading(true);
-    
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: chatMessage,
-          chatHistory: chatHistory,
-          sessionId: sessionId,
-          imageBase64: imageBase64
+          message: userMessage,
+          chatHistory,
+          sessionId,
+          imageBase64
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur de communication');
+        throw new Error(data.error || 'Erreur lors de la conversation');
       }
-      
-      if (data.sessionId) {
-        setSessionId(data.sessionId);
-      }
-      
-      setChatHistory([...chatHistory, newMessage, { 
-        role: 'assistant', 
-        content: data.reply 
-      }]);
+
+      setChatHistory(prev => [
+        ...prev,
+        { role: 'user', content: userMessage },
+        { role: data.role, content: data.reply }
+      ]);
     } catch (err: any) {
-      setError(`Erreur de chat: ${err.message}`);
+      setError(`Erreur: ${err.message || 'Une erreur est survenue lors de la conversation'}`);
     } finally {
       setChatLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <>
+        <Header />
+        <main className="container py-12">
+          <div className="flex justify-center items-center min-h-[60vh]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

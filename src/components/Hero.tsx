@@ -2,32 +2,19 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/store/hooks';
 
 const Hero = () => {
-  const [user, setUser] = useState<any>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    // Vérifier si l'utilisateur est connecté au chargement du composant
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des données utilisateur:', error);
-      }
-    }
-  }, []);
+  const { user } = useAppSelector((state) => state.auth);
 
   const handleAnalyzeClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (user) {
       router.push('/analyze');
     } else {
-      router.push('http://localhost:5500/auth/login');
+      router.push('/auth/login');
     }
   };
 
