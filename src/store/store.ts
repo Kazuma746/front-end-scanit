@@ -3,18 +3,19 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { combineReducers } from 'redux';
 
-// Import des reducers (à créer)
+// Import des reducers
 import authReducer from './slices/authSlice';
+import analysisReducer from './slices/analysisSlice';
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth'] // Liste des reducers à persister
+  whitelist: ['auth', 'analysis'] // Ajouter analysis à la whitelist pour la persistance
 };
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  // Ajoutez d'autres reducers ici
+  analysis: analysisReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
