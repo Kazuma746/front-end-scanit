@@ -38,7 +38,6 @@ export const loginUser = createAsyncThunk(
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify(credentials),
       });
 
@@ -77,11 +76,12 @@ export const updateUserProfile = createAsyncThunk(
   'auth/updateProfile',
   async ({ userId, updates }: { userId: string, updates: Partial<UserData> }, { getState, rejectWithValue }) => {
     try {
+      const state = getState() as any;
       const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(getState() as any).auth.token}`
+          'Authorization': `Bearer ${state.auth.token}`
         },
         body: JSON.stringify(updates),
       });
@@ -107,8 +107,6 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
     },
     updateUser: (state, action: PayloadAction<Partial<UserData>>) => {
       if (state.user) {

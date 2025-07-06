@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store/hooks';
 import Header from '@/components/Header';
@@ -11,20 +11,27 @@ import PdfViewer from '@/components/PdfViewer';
 import AnalysisResults from '@/components/AnalysisResults';
 import AnalysisChat from '@/components/AnalysisChat';
 import AnalysisLoading from '@/components/AnalysisLoading';
+import { useDropzone } from 'react-dropzone';
+import { FiUpload } from 'react-icons/fi';
+import { useSelector } from 'react-redux';
 
 export default function AnalyzePage() {
   const router = useRouter();
-  const { user, isLoading: authLoading } = useAppSelector((state) => state.auth);
+  const { user, token, isLoading: authLoading } = useAppSelector((state) => state.auth);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<string | null>(null);
+  const [scores, setScores] = useState<any>(null);
   const [chatHistory, setChatHistory] = useState<Array<{role: string; content: string}>>([]);
   const [chatMessage, setChatMessage] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [conversionStep, setConversionStep] = useState(0);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -44,7 +51,8 @@ export default function AnalyzePage() {
   };
 
   const handleImageGenerated = (base64Image: string) => {
-    setImageBase64(base64Image);
+    const base64Data = base64Image.split(',')[1];
+    setImageBase64(base64Data);
     setConversionStep(2);
   };
 
@@ -54,14 +62,25 @@ export default function AnalyzePage() {
       return;
     }
 
+    if (!user || !token) {
+      setError('Vous devez être connecté pour analyser un CV.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64 }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          imageBase64,
+          userId: user.id 
+        }),
       });
       
       const data = await response.json();
@@ -75,6 +94,7 @@ export default function AnalyzePage() {
       }
       
       setAnalysis(data.analysis);
+      setScores(data.scores);
       setChatHistory([
         { role: 'assistant', content: data.analysis }
       ]);
@@ -123,6 +143,37 @@ export default function AnalyzePage() {
     }
   };
 
+  const handleReset = () => {
+    setFile(null);
+    setImageBase64(null);
+    setError(null);
+    setAnalysis(null);
+    setScores(null);
+    setChatHistory([]);
+    setChatMessage('');
+    setConversionStep(0);
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles: File[]) => {
+      handleFileSelect(acceptedFiles[0]);
+    },
+    accept: {
+      'application/pdf': ['.pdf']
+    },
+    maxFiles: 1
+  });
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return;
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    setMousePosition({ x, y });
+  };
+
   if (authLoading) {
     return (
       <>
@@ -162,12 +213,39 @@ export default function AnalyzePage() {
           )
         ) : (
           <div className="md:grid md:grid-cols-2 md:gap-8">
-            <div className="hidden md:block bg-white rounded-lg shadow-md p-6 h-[calc(100vh-200px)] sticky top-24">
-              <PdfViewer file={file} />
+            <div className="hidden md:block bg-white rounded-lg shadow-md p-6 h-[calc(100vh-200px)] sticky top-24 overflow-hidden">
+              <div className="h-full flex flex-col">
+                <div className="flex items-center gap-2 mb-4 text-gray-600">
+                  <FiUpload className="h-5 w-5" />
+                  <span className="font-medium">{file.name}</span>
+                </div>
+                <div 
+                  ref={imageRef}
+                  className="flex-1 relative overflow-hidden cursor-zoom-in"
+                  onMouseMove={handleMouseMove}
+                  onMouseEnter={() => setIsHovering(true)}
+                  onMouseLeave={() => setIsHovering(false)}
+                >
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`,
+                      transform: isHovering ? 'scale(2)' : 'scale(1)',
+                      transition: 'transform 0.1s ease-out'
+                    }}
+                  >
+                    <img
+                      src={`data:image/png;base64,${imageBase64}`}
+                      alt="CV"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <AnalysisResults file={file} analysis={analysis} />
+            <div className="bg-white rounded-lg shadow-md p-8 overflow-y-auto max-h-[calc(100vh-200px)]">
+              <AnalysisResults file={file} analysis={analysis} scores={scores} />
               <AnalysisChat
                 chatHistory={chatHistory}
                 chatMessage={chatMessage}
