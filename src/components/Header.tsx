@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiLogOut, FiFileText } from 'react-icons/fi';
 import { useScrollToSection } from '@/hooks/useScrollToSection';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
@@ -56,7 +56,17 @@ const Header = () => {
         </Link>
 
         {/* Navigation - Desktop */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden md:flex items-center space-x-6">
+          {user && (
+            <Link 
+              href="/analyze"
+              className="flex items-center space-x-2 font-medium hover:text-primary transition-colors"
+              title="Analyser un CV"
+            >
+              <FiFileText className="w-5 h-5" />
+              <span>Analyser</span>
+            </Link>
+          )}
           <button 
             onClick={() => scrollToSection('features')} 
             className="font-medium hover:text-primary transition-colors"
@@ -96,6 +106,16 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-md z-40">
           <nav className="container py-4 flex flex-col space-y-4">
+            {user && (
+              <Link 
+                href="/analyze"
+                className="flex items-center space-x-2 font-medium hover:text-primary transition-colors px-2 py-2"
+                onClick={toggleMenu}
+              >
+                <FiFileText className="w-5 h-5" />
+                <span>Analyser un CV</span>
+              </Link>
+            )}
             <button 
               onClick={() => {
                 scrollToSection('features');
