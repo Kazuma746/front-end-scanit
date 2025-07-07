@@ -4,6 +4,7 @@ import { useAppSelector } from '@/store/hooks';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { FiCheck, FiX } from 'react-icons/fi';
+import '@reduxjs/toolkit';
 
 type PlanFeature = {
   name: string;
@@ -73,6 +74,39 @@ export default function PricingPage() {
   const { user } = useAppSelector((state) => state.auth);
   const userTier = user?.tier || 'freemium';
 
+  const buyPremium = (type: string) => {
+    let product = {
+      name: "",
+      priceId: ""
+    };
+
+    // si oui Id du premium sinon Ultra
+    if (type == "premium") {
+      product.name = "Premium"
+      product.priceId = "price_1Ri1dDKrYgMIPA8OFjR2eKyF"; // // mettre ces Id dans le env quand on réussira à le faire marcher
+
+    } else {
+      product.name = "Ultra";
+      product.priceId = "price_1Ri1dfKrYgMIPA8OOtoNheLv"; // mettre ces Id dans le env quand on réussira à le faire marcher
+    }
+
+    console.log("product : " + product.name);
+
+    fetch(`http://localhost:9000/create-checkout-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product)
+    }).then(async (paymentResponse) => {
+
+      let content = await paymentResponse.json();
+      if (content.url) {
+        window.location.href = content.url;
+      }
+    }).catch((err) => {
+      console.log(err);
+    })
+  }
+
   return (
     <>
       <Header />
@@ -111,7 +145,7 @@ export default function PricingPage() {
                   Votre abonnement actuel
                 </div>
               )}
-              <button className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors">
+              <button onClick={() => { buyPremium("premium") }} className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors">
                 Passer au Premium
               </button>
             </div>
@@ -128,7 +162,7 @@ export default function PricingPage() {
                   Votre abonnement actuel
                 </div>
               )}
-              <button className="w-full bg-secondary text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors">
+              <button onClick={() => { buyPremium("ultra") }} className="w-full bg-secondary text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors">
                 Passer à l'Ultra
               </button>
             </div>
