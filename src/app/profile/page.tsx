@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiEye, FiEyeOff, FiAlertTriangle, FiUser, FiMail, FiKey, FiTrash2 } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiAlertTriangle, FiUser, FiMail, FiKey, FiTrash2, FiAlertCircle } from 'react-icons/fi';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { updateUser } from '@/store/slices/authSlice';
+import { updateUser, updateUserProfile, logout } from '@/store/slices/authSlice';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Tooltip from '@/components/ui/Tooltip';
 
 export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isLoading: authLoading } = useAppSelector((state) => state.auth);
+  const { user, isLoading: authLoading, token } = useAppSelector((state) => state.auth);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
   
@@ -61,35 +62,15 @@ export default function ProfilePage() {
     setSuccessMessage('');
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      
-      if (!token) {
-        throw new Error('Token non trouvé');
+      if (!user?.id) {
+        throw new Error('ID utilisateur non trouvé');
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/${user?.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({ userName: formData.username }),
-      });
+      await dispatch(updateUserProfile({
+        userId: user.id,
+        updates: { userName: formData.username }
+      })).unwrap();
 
-      if (!response.ok) {
-        let errorMessage = 'Erreur lors de la mise à jour du pseudo';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          console.error('Erreur lors du parsing de la réponse:', e);
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      dispatch(updateUser({ userName: formData.username }));
       setSuccessMessage('Pseudo mis à jour avec succès');
     } catch (error: any) {
       setErrorMessage(error.message || 'Erreur lors de la mise à jour du pseudo');
@@ -106,39 +87,15 @@ export default function ProfilePage() {
     setSuccessMessage('');
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      
-      if (!token) {
-        throw new Error('Token non trouvé');
+      if (!user?.id) {
+        throw new Error('ID utilisateur non trouvé');
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/${user?.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email: formData.email }),
-      });
+      await dispatch(updateUserProfile({
+        userId: user.id,
+        updates: { email: formData.email }
+      })).unwrap();
 
-      if (!response.ok) {
-        let errorMessage = 'Erreur lors de la mise à jour de l\'email';
-        try {
-          const errorData = await response.json();
-          if (errorData.message && errorData.message.includes('duplicate key error')) {
-            errorMessage = 'Cet email est déjà utilisé par un autre compte';
-          } else {
-            errorMessage = errorData.message || errorMessage;
-          }
-        } catch (e) {
-          console.error('Erreur lors du parsing de la réponse:', e);
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      dispatch(updateUser({ email: formData.email }));
       setSuccessMessage('Email mis à jour avec succès');
     } catch (error: any) {
       setErrorMessage(error.message || 'Erreur lors de la mise à jour de l\'email');
@@ -161,41 +118,18 @@ export default function ProfilePage() {
     }
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      
-      if (!token) {
-        throw new Error('Token non trouvé');
+      if (!user?.id) {
+        throw new Error('ID utilisateur non trouvé');
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/${user?.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({ 
+      const result = await dispatch(updateUserProfile({
+        userId: user.id,
+        updates: {
           currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword 
-        }),
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Erreur lors de la mise à jour du mot de passe';
-        try {
-          const errorData = await response.json();
-          if (response.status === 401) {
-            errorMessage = 'Le mot de passe actuel est incorrect';
-          } else {
-            errorMessage = errorData.message || errorMessage;
-          }
-        } catch (e) {
-          console.error('Erreur lors du parsing de la réponse:', e);
+          newPassword: formData.newPassword
         }
-        throw new Error(errorMessage);
-      }
+      })).unwrap();
 
-      const data = await response.json();
       setSuccessMessage('Mot de passe mis à jour avec succès');
       setFormData(prev => ({
         ...prev,
@@ -217,22 +151,29 @@ export default function ProfilePage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/users/delete`, {
+      if (!user?.id) {
+        throw new Error('ID utilisateur non trouvé');
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/${user.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
         body: JSON.stringify({ password: formData.deleteConfirmPassword }),
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la suppression du compte');
+        const data = await response.json();
+        throw new Error(data.message || 'Erreur lors de la suppression du compte');
       }
 
+      // Déconnexion après suppression réussie
+      dispatch(logout());
       router.push('/');
-    } catch (error) {
-      setErrorMessage('Erreur lors de la suppression du compte');
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Erreur lors de la suppression du compte');
       console.error('Erreur:', error);
     } finally {
       setIsLoading(false);
@@ -384,7 +325,16 @@ export default function ProfilePage() {
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-sm text-gray-500 mb-1">Email</p>
-                        <p className="font-medium text-gray-900">{user?.email}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-gray-900">{user?.email}</p>
+                          {!user?.isVerified && (
+                            <Tooltip content="Email non vérifié">
+                              <div className="flex items-center text-yellow-600">
+                                <FiAlertCircle className="w-5 h-5" />
+                              </div>
+                            </Tooltip>
+                          )}
+                        </div>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-sm text-gray-500 mb-1">Téléphone</p>

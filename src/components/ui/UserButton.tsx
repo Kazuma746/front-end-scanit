@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FiUser, FiLogOut } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import type { UserData } from '@/store/slices/authSlice';
+import { MdVerifiedUser, MdWarning } from 'react-icons/md';
 
 interface UserButtonProps {
   user: UserData | null;
@@ -61,13 +62,13 @@ const UserButton = ({ user, isLoading = false, onLogout, className = '' }: UserB
   // Si on a des données utilisateur, on les affiche
   if (user?.userName) {
     return (
-      <div className="relative">
+      <div className={`relative group ${className}`}>
         <button 
           onClick={toggleDropdown}
           className={`${baseButtonClasses} hover:bg-opacity-90 transition-colors`}
         >
+          <FiUser className="w-5 h-5" />
           <span>{user.userName}</span>
-          <FiUser />
         </button>
         
         {isDropdownOpen && (

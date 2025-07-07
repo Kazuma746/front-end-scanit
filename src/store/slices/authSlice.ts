@@ -10,7 +10,15 @@ export interface UserData {
   tier?: string;
   phone?: string;
   credits?: number;
+  isVerified: boolean;
 }
+
+export interface PasswordUpdate {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export type UserUpdate = Partial<UserData> | PasswordUpdate;
 
 interface AuthState {
   user: UserData | null;
@@ -62,7 +70,8 @@ export const loginUser = createAsyncThunk(
           phone: payload.phone || '',
           role: payload.role || 'user',
           tier: payload.tier || 'freemium',
-          credits: payload.credits || 0
+          credits: payload.credits || 0,
+          isVerified: payload.isVerified || false
         }
       };
     } catch (error: any) {
@@ -74,7 +83,7 @@ export const loginUser = createAsyncThunk(
 // Async thunk pour la mise à jour du profil
 export const updateUserProfile = createAsyncThunk(
   'auth/updateProfile',
-  async ({ userId, updates }: { userId: string, updates: Partial<UserData> }, { getState, rejectWithValue }) => {
+  async ({ userId, updates }: { userId: string, updates: UserUpdate }, { getState, rejectWithValue }) => {
     try {
       const state = getState() as any;
       const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/${userId}`, {
@@ -99,6 +108,31 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
+// Async thunk pour la vérification d'email
+export const verifyEmail = createAsyncThunk(
+  'auth/verifyEmail',
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/email/confirm/${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erreur lors de la vérification');
+      }
+
+      return data.user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Une erreur est survenue lors de la vérification');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -107,6 +141,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.error = null;
     },
     updateUser: (state, action: PayloadAction<Partial<UserData>>) => {
       if (state.user) {
@@ -129,7 +164,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -142,10 +176,27 @@ const authSlice = createSlice({
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        if (state.user) {
+          state.user = { ...state.user, ...action.payload };
+        }
         state.error = null;
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Email verification
+      .addCase(verifyEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyEmail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user) {
+          state.user.isVerified = true;
+        }
+      })
+      .addCase(verifyEmail.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

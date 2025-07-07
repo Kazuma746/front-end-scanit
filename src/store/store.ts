@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import storage from 'redux-persist/lib/storage/session';
 import { combineReducers } from 'redux';
 
 // Import des reducers
@@ -10,7 +10,7 @@ import analysisReducer from './slices/analysisSlice';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth', 'analysis'] // Ajouter analysis à la whitelist pour la persistance
+  whitelist: ['auth', 'analysis']
 };
 
 const rootReducer = combineReducers({

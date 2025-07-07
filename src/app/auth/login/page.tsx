@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginUser } from '@/store/slices/authSlice';
+import { loginUser, clearError } from '@/store/slices/authSlice';
 import AuthButton from '@/components/ui/AuthButton';
 import LogoWithTagline from '@/components/ui/LogoWithTagline';
 
@@ -16,6 +16,11 @@ export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.auth);
+
+  // Nettoyer l'état d'erreur au chargement de la page
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
