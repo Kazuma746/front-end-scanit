@@ -83,11 +83,11 @@ export default function PricingPage() {
     // si oui Id du premium sinon Ultra
     if (type == "premium") {
       product.name = "Premium"
-      product.priceId = "price_1Ri1dDKrYgMIPA8OFjR2eKyF"; // // mettre ces Id dans le env quand on réussira à le faire marcher
+      product.priceId = "price_1RiDAFKrYgMIPA8Oa0wUMy69"; // // mettre ces Id dans le env quand on réussira à le faire marcher
 
     } else {
       product.name = "Ultra";
-      product.priceId = "price_1Ri1dfKrYgMIPA8OOtoNheLv"; // mettre ces Id dans le env quand on réussira à le faire marcher
+      product.priceId = "price_1RiDC1KrYgMIPA8OPXB8DqBv"; // mettre ces Id dans le env quand on réussira à le faire marcher
     }
 
     console.log("product : " + product.name);

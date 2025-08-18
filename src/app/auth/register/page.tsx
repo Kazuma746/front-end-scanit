@@ -113,7 +113,7 @@ export default function RegisterPage() {
   };
 
   const loginWithGoogle = () => {
-    const popup = window.open(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/auth/google/auth`, 'googleLogin', 'width=500,height=600');
+    const popup = window.open(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/google/auth`, 'googleLogin', 'width=500,height=600');
 
     // Écouter le message venant de la popup
     window.addEventListener('message', async (event) => {
