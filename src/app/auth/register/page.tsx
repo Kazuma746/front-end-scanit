@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAppDispatch } from '@/store/hooks';
 import AuthButton from '@/components/ui/AuthButton';
-import LogoWithTagline from '@/components/ui/LogoWithTagline';
+import Logo from '@/components/ui/Logo';
 
 
 export default function RegisterPage() {
@@ -113,7 +113,7 @@ export default function RegisterPage() {
   };
 
   const loginWithGoogle = () => {
-    const popup = window.open(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/auth/google/auth`, 'googleLogin', 'width=500,height=600');
+    const popup = window.open(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/google/auth`, 'googleLogin', 'width=500,height=600');
 
     // Écouter le message venant de la popup
     window.addEventListener('message', async (event) => {
@@ -144,7 +144,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-8">
-        <LogoWithTagline className="text-left" />
+        <Logo size="lg" />
       </div>
       
       <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 pb-12">

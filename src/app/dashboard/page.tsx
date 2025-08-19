@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiFileText, FiClock, FiTrendingUp, FiCheck, FiLoader, FiAlertCircle, FiTrash2, FiEye } from 'react-icons/fi';
+import { FiFileText, FiClock, FiTrendingUp, FiCheck, FiLoader, FiAlertCircle, FiTrash2, FiEye, FiPlus, FiEdit, FiBriefcase } from 'react-icons/fi';
 import { useAppSelector } from '@/store/hooks';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ApplicationForm from '@/components/ApplicationForm';
+import { Application, ApplicationStats, CreateApplicationData, UpdateApplicationData } from '@/types/application';
+import { applicationService } from '@/services/applicationService';
 
 interface AnalysisStats {
   totalAnalyses: number;
@@ -35,6 +38,18 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // États pour les candidatures
+  const [activeTab, setActiveTab] = useState<'cv' | 'applications'>('cv');
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [applicationStats, setApplicationStats] = useState<ApplicationStats>({
+    totalApplications: 0,
+    recentApplications: 0,
+    statusCounts: { pending: 0, interview: 0, rejected: 0, accepted: 0 }
+  });
+  const [isApplicationFormOpen, setIsApplicationFormOpen] = useState(false);
+  const [editingApplication, setEditingApplication] = useState<Application | null>(null);
+  const [applicationLoading, setApplicationLoading] = useState(false);
 
   const fetchStats = async () => {
     try {
@@ -53,7 +68,7 @@ export default function DashboardPage() {
       console.log('=== Stats du Dashboard ===');
       console.log('Données reçues:', data);
       console.log('Liste des analyses:', data.recentAnalysesList);
-      console.log('Scores des analyses:', data.recentAnalysesList.map(analysis => analysis.score));
+      console.log('Scores des analyses:', data.recentAnalysesList.map((analysis: any) => analysis.score));
       setStats(data);
     } catch (err) {
       setError('Une erreur est survenue lors du chargement des statistiques');
@@ -85,6 +100,59 @@ export default function DashboardPage() {
     }
   };
 
+  // Fonctions pour les candidatures
+  const fetchApplications = async () => {
+    if (!token) return;
+    try {
+      const [applicationsData, statsData] = await Promise.all([
+        applicationService.getUserApplications(token),
+        applicationService.getApplicationStats(token)
+      ]);
+      setApplications(applicationsData);
+      setApplicationStats(statsData);
+    } catch (err) {
+      setError('Erreur lors du chargement des candidatures');
+      console.error('Erreur:', err);
+    }
+  };
+
+  const handleCreateApplication = async (data: CreateApplicationData) => {
+    if (!token) return;
+    setApplicationLoading(true);
+    try {
+      await applicationService.createApplication(token, data);
+      await fetchApplications();
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la création de la candidature');
+    } finally {
+      setApplicationLoading(false);
+    }
+  };
+
+  const handleUpdateApplication = async (data: UpdateApplicationData) => {
+    if (!token || !editingApplication) return;
+    setApplicationLoading(true);
+    try {
+      await applicationService.updateApplication(token, editingApplication._id, data);
+      await fetchApplications();
+      setEditingApplication(null);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la mise à jour de la candidature');
+    } finally {
+      setApplicationLoading(false);
+    }
+  };
+
+  const handleDeleteApplication = async (id: string) => {
+    if (!token) return;
+    try {
+      await applicationService.deleteApplication(token, id);
+      await fetchApplications();
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la suppression de la candidature');
+    }
+  };
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/auth/login');
@@ -93,6 +161,7 @@ export default function DashboardPage() {
 
     if (user && token) {
       fetchStats();
+      fetchApplications();
     }
   }, [user, token, authLoading, router]);
 
@@ -141,6 +210,31 @@ export default function DashboardPage() {
     return 'text-red-600';
   };
 
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pending: { label: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
+      interview: { label: 'Entretien', color: 'bg-blue-100 text-blue-800' },
+      rejected: { label: 'Refusé', color: 'bg-red-100 text-red-800' },
+      accepted: { label: 'Accepté', color: 'bg-green-100 text-green-800' }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+        {config.label}
+      </span>
+    );
+  };
+
+  const formatApplicationDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
   if (isLoading) {
     return (
       <>
@@ -164,7 +258,7 @@ export default function DashboardPage() {
             Tableau de bord
           </h1>
           <p className="text-gray-600">
-            Bienvenue {user?.firstName}, voici vos statistiques d'analyse de CV
+            Bienvenue {user?.firstName}, gérez vos CV et vos candidatures
           </p>
         </div>
 
@@ -174,32 +268,101 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <StatCard
-            title="Total des analyses"
-            value={stats.totalAnalyses}
-            icon={FiFileText}
-            description="Nombre total de CV analysés"
-          />
-          <StatCard
-            title="Analyses récentes"
-            value={stats.recentAnalyses}
-            icon={FiClock}
-            description="CV analysés ces 30 derniers jours"
-          />
-          <StatCard
-            title="Score moyen"
-            value={Math.round(stats.averageScore)}
-            icon={FiTrendingUp}
-            description="Score moyen de vos CV"
-          />
+        {/* Onglets */}
+        <div className="mb-8">
+          <nav className="flex space-x-8" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('cv')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'cv'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <FiFileText className="w-5 h-5" />
+                <span>Analyses CV</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('applications')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'applications'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <FiBriefcase className="w-5 h-5" />
+                <span>Candidatures</span>
+              </div>
+            </button>
+          </nav>
         </div>
 
-        {/* Section des dernières analyses */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-secondary mb-6">
-            Dernières analyses
-          </h2>
+        {/* Contenu conditionnel basé sur l'onglet actif */}
+        {activeTab === 'cv' && (
+          <>
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <StatCard
+                title="Total des analyses"
+                value={stats.totalAnalyses}
+                icon={FiFileText}
+                description="Nombre total de CV analysés"
+              />
+              <StatCard
+                title="Analyses récentes"
+                value={stats.recentAnalyses}
+                icon={FiClock}
+                description="CV analysés ces 30 derniers jours"
+              />
+              <StatCard
+                title="Score moyen"
+                value={Math.round(stats.averageScore)}
+                icon={FiTrendingUp}
+                description="Score moyen de vos CV"
+              />
+            </div>
+          </>
+        )}
+
+        {activeTab === 'applications' && (
+          <>
+            <div className="grid md:grid-cols-4 gap-6 mb-8">
+              <StatCard
+                title="Total candidatures"
+                value={applicationStats.totalApplications}
+                icon={FiBriefcase}
+                description="Nombre total de candidatures"
+              />
+              <StatCard
+                title="En attente"
+                value={applicationStats.statusCounts.pending}
+                icon={FiClock}
+                description="Candidatures en attente"
+              />
+              <StatCard
+                title="Entretiens"
+                value={applicationStats.statusCounts.interview}
+                icon={FiCheck}
+                description="Entretiens programmés"
+              />
+              <StatCard
+                title="Acceptées"
+                value={applicationStats.statusCounts.accepted}
+                icon={FiTrendingUp}
+                description="Candidatures acceptées"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Section des tableaux */}
+        {activeTab === 'cv' && (
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-xl font-bold text-secondary mb-6">
+              Dernières analyses
+            </h2>
           
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -275,6 +438,112 @@ export default function DashboardPage() {
             </table>
           </div>
         </div>
+        )}
+
+        {activeTab === 'applications' && (
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-secondary">
+                Suivi des candidatures
+              </h2>
+              <button
+                onClick={() => setIsApplicationFormOpen(true)}
+                className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors flex items-center space-x-2"
+              >
+                <FiPlus size={16} />
+                <span>Nouvelle candidature</span>
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4">Entreprise</th>
+                    <th className="text-left py-3 px-4">Poste</th>
+                    <th className="text-left py-3 px-4">CV lié</th>
+                    <th className="text-center py-3 px-4">Statut</th>
+                    <th className="text-left py-3 px-4">Commentaires</th>
+                    <th className="text-right py-3 px-4">Date</th>
+                    <th className="text-center py-3 px-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {applications.map((application) => (
+                    <tr key={application._id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4 font-medium">{application.companyName}</td>
+                      <td className="py-3 px-4">{application.jobTitle || '-'}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm">{application.cvId.name}</span>
+                          <span className={`text-xs ${getScoreColor(application.cvId.score.overall)}`}>
+                            ({application.cvId.score.overall}%)
+                          </span>
+                        </div>
+                      </td>
+                      <td className="text-center py-3 px-4">
+                        {getStatusBadge(application.status)}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="max-w-xs truncate text-sm text-gray-600">
+                          {application.comments || '-'}
+                        </div>
+                      </td>
+                      <td className="text-right py-3 px-4 text-sm text-gray-600">
+                        {formatApplicationDate(application.applicationDate)}
+                      </td>
+                      <td className="text-center py-3 px-4">
+                        <div className="flex items-center justify-center space-x-2">
+                          <button
+                            onClick={() => {
+                              setEditingApplication(application);
+                              setIsApplicationFormOpen(true);
+                            }}
+                            className="text-blue-500 hover:text-blue-700 transition-colors"
+                            title="Modifier"
+                          >
+                            <FiEdit size={16} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?')) {
+                                handleDeleteApplication(application._id);
+                              }
+                            }}
+                            className="text-red-500 hover:text-red-700 transition-colors"
+                            title="Supprimer"
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {applications.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-gray-500">
+                        Aucune candidature enregistrée
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Formulaire de candidature */}
+        <ApplicationForm
+          isOpen={isApplicationFormOpen}
+          onClose={() => {
+            setIsApplicationFormOpen(false);
+            setEditingApplication(null);
+          }}
+          onSubmit={editingApplication ? handleUpdateApplication : handleCreateApplication}
+          application={editingApplication}
+          cvOptions={stats.recentAnalysesList.map(cv => ({ _id: cv._id, name: cv.name }))}
+          isLoading={applicationLoading}
+        />
       </main>
       <Footer />
     </>
