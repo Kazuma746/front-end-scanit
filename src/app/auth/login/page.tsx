@@ -7,7 +7,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loginUser, clearError } from '@/store/slices/authSlice';
 import AuthButton from '@/components/ui/AuthButton';
-import LogoWithTagline from '@/components/ui/LogoWithTagline';
+import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -48,7 +48,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-8">
-        <LogoWithTagline className="text-left" />
+        <Logo size="lg" />
       </div>
       
       <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 pb-12">

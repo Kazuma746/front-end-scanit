@@ -8,6 +8,7 @@ import { useScrollToSection } from '@/hooks/useScrollToSection';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 import UserButton from './ui/UserButton';
+import Logo from './ui/Logo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,9 +35,7 @@ const Header = () => {
     return (
       <header className="sticky top-0 z-50 bg-white shadow-sm">
         <div className="container flex items-center justify-between py-4">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-secondary">ScanIt</span>
-          </Link>
+          <Logo />
           <nav className="hidden md:flex items-center space-x-8">
             <div className="w-[120px] h-[40px] bg-gray-200 animate-pulse rounded-md"></div>
           </nav>
@@ -51,9 +50,7 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="container flex items-center justify-between py-4">
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-secondary">ScanIt</span>
-        </Link>
+        <Logo />
 
         {/* Navigation - Desktop */}
         <nav className="hidden md:flex items-center space-x-6">
