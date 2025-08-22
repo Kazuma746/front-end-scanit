@@ -71,30 +71,36 @@ const features: PlanFeature[] = [
 ];
 
 export default function PricingPage() {
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, token } = useAppSelector((state) => state.auth);
   const userTier = user?.tier || 'freemium';
 
   const buyPremium = (type: string) => {
     let product = {
-      name: "",
-      priceId: ""
+      productName: "",
+      priceId: "",
+      userId: user?.id
     };
 
     // si oui Id du premium sinon Ultra
     if (type == "premium") {
-      product.name = "Premium"
-      product.priceId = "price_1Ri1dDKrYgMIPA8OFjR2eKyF"; // // mettre ces Id dans le env quand on réussira à le faire marcher
+      product.productName = "Premium"
+      product.priceId = "price_1RiDAFKrYgMIPA8Oa0wUMy69"; // // mettre ces Id dans le env quand on réussira à le faire marcher
 
     } else {
-      product.name = "Ultra";
-      product.priceId = "price_1Ri1dfKrYgMIPA8OOtoNheLv"; // mettre ces Id dans le env quand on réussira à le faire marcher
+      product.productName = "Ultra";
+      product.priceId = "price_1RiDC1KrYgMIPA8OPXB8DqBv"; // mettre ces Id dans le env quand on réussira à le faire marcher
     }
 
-    console.log("product : " + product.name);
+
+    console.log("product : " + JSON.stringify(product));
+
 
     fetch(`http://localhost:9000/create-checkout-session`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+       },
       body: JSON.stringify(product)
     }).then(async (paymentResponse) => {
 
@@ -104,7 +110,22 @@ export default function PricingPage() {
       }
     }).catch((err) => {
       console.log(err);
-    })
+    })        
+
+
+    // fetch(`http://localhost:9000/create-checkout-session`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(product)
+    // }).then(async (paymentResponse) => {
+
+    //   let content = await paymentResponse.json();
+    //   if (content.url) {
+    //     window.location.href = content.url;
+    //   }
+    // }).catch((err) => {
+    //   console.log(err);
+    // })
   }
 
   return (
