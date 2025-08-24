@@ -24,10 +24,10 @@ const Hero = () => {
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              Optimisez votre CV et <span className="text-primary">décrochez l'emploi de vos rêves</span>
+              Analysez votre CV et <span className="text-primary">suivez vos candidatures</span>
             </h1>
             <p className="text-xl mb-8 text-gray-200">
-              Notre technologie analyse votre CV pour le rendre parfaitement compatible avec les systèmes ATS utilisés par les recruteurs.
+              Obtenez des recommandations compatibles ATS et gérez le suivi de vos candidatures au même endroit. Commencez gratuitement, puis ajoutez des crédits si vous en voulez plus.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button onClick={handleAnalyzeClick} className="btn-primary text-center">

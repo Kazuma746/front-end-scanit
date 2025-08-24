@@ -1,37 +1,88 @@
 'use client';
 
-import { useState } from 'react';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 
 const FAQ = () => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  type FaqItem = { question: string; answer: string };
+
+  const [openItems, setOpenItems] = useState<Set<number>>(new Set());
 
   const toggleAccordion = (index: number) => {
-    setActiveIndex(activeIndex === index ? null : index);
+    setOpenItems(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
   };
 
-  const faqItems = [
+  const faqItems: FaqItem[] = [
     {
-      question: "Qu'est-ce que l'optimisation ATS pour un CV ?",
-      answer: "L'optimisation ATS consiste à adapter votre CV pour qu'il soit correctement analysé par les systèmes de suivi des candidats (ATS). Ces logiciels filtrent les candidatures avant qu'elles n'atteignent les recruteurs. Un CV optimisé pour l'ATS contient les bons mots-clés, une mise en page compatible et un format adapté pour maximiser vos chances d'être sélectionné."
+      question: "Comment fonctionnent l'analyse et le suivi ?",
+      answer: "Téléversez votre CV pour obtenir des recommandations compatibles ATS, puis enregistrez et suivez vos candidatures (statuts, relances, notes) dans un tableau de bord."
     },
     {
-      question: "Comment fonctionne l'analyse de CV sur ScanIt ?",
-      answer: "Notre outil analyse votre CV en utilisant des algorithmes similaires à ceux des ATS, puis identifie les points forts et faibles. Nous vérifions la présence des mots-clés pertinents pour le poste visé, la structure du document, la mise en page et d'autres facteurs qui influencent la lisibilité par les systèmes automatisés et par les recruteurs."
+      question: "Qu'est-ce que le système de crédits ?",
+      answer: "Le plan gratuit inclut un nombre limité d'analyses et de suivis. Vous pouvez acheter des crédits pour débloquer plus d'analyses, plus de candidatures suivies et, à terme, des analyses plus longues."
     },
     {
       question: "Le service est-il vraiment gratuit ?",
-      answer: "Oui, tous nos outils destinés aux candidats sont entièrement gratuits. Nous ne demandons pas de coordonnées bancaires et il n'y a pas de frais cachés. Notre mission est de vous aider à réussir votre recherche d'emploi sans barrière financière."
+      answer: "Oui. Vous pouvez utiliser ScanIt gratuitement pour analyser votre CV et suivre vos candidatures avec un quota généreux. Plus tard, vous pourrez, si vous le souhaitez, étendre ces limites grâce à des crédits optionnels, sans engagement."
     },
     {
-      question: "Comment puis-je savoir si mon CV passe les filtres ATS ?",
-      answer: "Notre outil d'analyse vous fournit un score et des recommandations détaillées. Un score élevé indique que votre CV est bien optimisé pour passer les filtres ATS. Les recommandations vous aident à améliorer les aspects spécifiques qui pourraient être problématiques."
+      question: "Les recommandations sont-elles compatibles ATS ?",
+      answer: "Oui. Nous simulons la lecture d'un ATS pour détecter mots-clés, structure et lisibilité, puis nous suggérons des améliorations concrètes."
     },
     {
-      question: "Combien de temps faut-il pour analyser mon CV ?",
-      answer: "L'analyse de votre CV prend généralement moins d'une minute. Vous recevez immédiatement un rapport détaillé avec des suggestions d'amélioration que vous pouvez appliquer sur notre plateforme ou exporter."
+      question: "Les futures améliorations prévues ?",
+      answer: "Nous envisageons plus de jetons pour des analyses plus longues, des rapports détaillés et d'autres avantages pour les comptes avec crédits."
     }
   ];
+
+  const AccordionItem = ({ item, isOpen, onToggle }: { item: FaqItem; isOpen: boolean; onToggle: () => void }) => {
+    const contentRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const [height, setHeight] = useState<string | number>(0);
+
+    useLayoutEffect(() => {
+      const content = contentRef.current;
+      const wrapper = wrapperRef.current;
+      if (!content || !wrapper) return;
+
+      if (isOpen) {
+        const target = content.scrollHeight;
+        setHeight(target);
+        const onEnd = () => setHeight('auto');
+        wrapper.addEventListener('transitionend', onEnd, { once: true });
+      } else {
+        const current = content.scrollHeight;
+        // Si on était en auto, fixe la hauteur puis déclenche l'animation vers 0 au frame suivant
+        setHeight(current);
+        requestAnimationFrame(() => setHeight(0));
+      }
+    }, [isOpen]);
+
+    return (
+      <div className="mb-2 border-b border-gray-200">
+        <button
+          className="flex justify-between items-center w-full text-left font-medium text-lg py-4 focus:outline-none"
+          onClick={onToggle}
+        >
+          <span className="text-secondary">{item.question}</span>
+          <FiChevronDown className={`text-primary transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        <div ref={wrapperRef} style={{ height, transition: 'height 300ms ease' }} className="overflow-hidden">
+          <div ref={contentRef} className="pb-4 text-gray-600">
+            {item.answer}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <section id="faq" className="section bg-white">
@@ -39,28 +90,18 @@ const FAQ = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-secondary mb-4">Questions fréquentes</h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Tout ce que vous devez savoir sur notre plateforme d'optimisation de CV.
+            Tout ce que vous devez savoir sur l'analyse de CV, le suivi des candidatures et les crédits.
           </p>
         </div>
 
         <div className="max-w-3xl mx-auto">
           {faqItems.map((item, index) => (
-            <div key={index} className="mb-4 border-b border-gray-200 pb-4">
-              <button
-                className="flex justify-between items-center w-full text-left font-medium text-lg py-3 focus:outline-none"
-                onClick={() => toggleAccordion(index)}
-              >
-                <span className="text-secondary">{item.question}</span>
-                <span className="text-primary">
-                  {activeIndex === index ? <FiChevronUp /> : <FiChevronDown />}
-                </span>
-              </button>
-              {activeIndex === index && (
-                <div className="mt-2 text-gray-600 pb-3">
-                  {item.answer}
-                </div>
-              )}
-            </div>
+            <AccordionItem
+              key={index}
+              item={item}
+              isOpen={openItems.has(index)}
+              onToggle={() => toggleAccordion(index)}
+            />
           ))}
         </div>
       </div>

@@ -12,8 +12,7 @@ const Footer = () => {
           <div className="md:col-span-1">
             <h2 className="text-xl font-bold mb-4">ScanIt</h2>
             <p className="text-gray-300 mb-4">
-              La solution intelligente pour créer des CV optimisés pour les systèmes ATS et 
-              maximiser vos chances de décrocher l'emploi de vos rêves.
+              Analyse de CV compatible ATS et suivi de candidatures. Commencez gratuitement, ajoutez des crédits pour plus d’avantages.
             </p>
           </div>
 
