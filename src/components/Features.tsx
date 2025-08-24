@@ -5,18 +5,18 @@ const Features = () => {
   const features = [
     {
       icon: <FiBarChart2 className="w-12 h-12 text-primary" />,
-      title: "Analyse approfondie",
-      description: "Découvrez comment les logiciels de recrutement voient votre CV et obtenez des suggestions d'amélioration."
+      title: "Analyse de CV",
+      description: "Comprenez comment les ATS lisent votre CV et recevez des recommandations concrètes."
     },
     {
       icon: <FiTarget className="w-12 h-12 text-primary" />,
-      title: "Optimisation ATS",
-      description: "Créez un CV parfaitement adapté aux systèmes de suivi des candidats (ATS) utilisés par les recruteurs."
+      title: "Suivi de candidatures",
+      description: "Centralisez vos candidatures, suivez les statuts et organisez vos relances."
     },
     {
       icon: <FiLock className="w-12 h-12 text-primary" />,
-      title: "100% gratuit",
-      description: "Tous nos outils pour candidats sont entièrement gratuits, sans abonnement ni limitation cachée."
+      title: "Gratuit pour démarrer",
+      description: "Commencez gratuitement. Des crédits optionnels débloquent davantage d’analyses et de suivis."
     }
   ];
 
@@ -24,9 +24,9 @@ const Features = () => {
     <section id="features" className="section bg-gray-50">
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-secondary mb-4">Transformez votre recherche d'emploi</h2>
+          <h2 className="text-3xl font-bold text-secondary mb-4">Maîtrisez vos candidatures</h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            ScanIt vous aide à créer des CV optimisés qui passent les filtres automatisés et attirent l'attention des recruteurs.
+            Analyse de CV compatible ATS et suivi de candidatures, réunis sur une seule plateforme.
           </p>
         </div>
 
@@ -48,11 +48,8 @@ const Features = () => {
         </div>
 
         <div className="mt-16 text-center">
-          <Link
-            href="/analyze" 
-            className="btn-primary"
-          >
-            Créer mon CV maintenant
+          <Link href="/analyze" className="btn-primary">
+            Analyser un CV
           </Link>
         </div>
       </div>

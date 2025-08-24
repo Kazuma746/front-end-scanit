@@ -15,55 +15,49 @@ type PlanFeature = {
 
 const features: PlanFeature[] = [
   {
-    name: "Analyse de CV basique",
+    name: "Analyses de CV (limitées en gratuit, +crédits)",
     freemium: true,
     premium: true,
     ultra: true
   },
   {
-    name: "Suggestions d'amélioration ATS",
+    name: "Suivi de candidatures (limité en gratuit, +crédits)",
     freemium: true,
     premium: true,
     ultra: true
   },
   {
-    name: "Nombre d'analyses par mois",
+    name: "Recommandations compatibles ATS",
+    freemium: true,
+    premium: true,
+    ultra: true
+  },
+  {
+    name: "Analyses plus longues (plus de jetons)",
     freemium: false,
     premium: true,
     ultra: true
   },
   {
-    name: "Chat avec l'IA illimité",
+    name: "Historique et export des rapports",
     freemium: false,
     premium: true,
-    ultra: true
-  },
-  {
-    name: "Analyse approfondie du design",
-    freemium: false,
-    premium: true,
-    ultra: true
-  },
-  {
-    name: "Suggestions de mots-clés par secteur",
-    freemium: false,
-    premium: true,
-    ultra: true
-  },
-  {
-    name: "Comparaison avec les CV du secteur",
-    freemium: false,
-    premium: false,
-    ultra: true
-  },
-  {
-    name: "Génération de CV optimisé",
-    freemium: false,
-    premium: false,
     ultra: true
   },
   {
     name: "Support prioritaire",
+    freemium: false,
+    premium: true,
+    ultra: true
+  },
+  {
+    name: "Rappels et relances automatiques avancés",
+    freemium: false,
+    premium: false,
+    ultra: true
+  },
+  {
+    name: "Accès anticipé aux nouvelles fonctionnalités",
     freemium: false,
     premium: false,
     ultra: true
@@ -136,7 +130,7 @@ export default function PricingPage() {
           Nos Offres
         </h1>
         <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-          Choisissez l'offre qui correspond le mieux à vos besoins et optimisez votre CV pour maximiser vos chances de décrocher l'emploi de vos rêves.
+          Commencez gratuitement. Des crédits optionnels vous donnent accès à davantage d’analyses, à un suivi étendu et à des analyses plus longues.
         </p>
 
         {/* Cards Section */}
@@ -159,7 +153,7 @@ export default function PricingPage() {
           <div className={`bg-white rounded-xl shadow-lg p-8 border-2 ${userTier === 'premium' ? 'border-primary' : 'border-transparent'}`}>
             <div className="text-center">
               <h3 className="text-2xl font-bold text-secondary mb-2">Premium</h3>
-              <p className="text-gray-600 mb-6">Pour les professionnels</p>
+              <p className="text-gray-600 mb-6">Idéal pour un usage régulier (plus de crédits, plus de suivi)</p>
               <div className="text-4xl font-bold text-primary mb-6">2€</div>
               {userTier === 'premium' && (
                 <div className="bg-primary/10 text-primary text-sm py-1 px-3 rounded-full mb-6 inline-block">
@@ -176,7 +170,7 @@ export default function PricingPage() {
           <div className={`bg-white rounded-xl shadow-lg p-8 border-2 ${userTier === 'ultra' ? 'border-primary' : 'border-transparent'}`}>
             <div className="text-center">
               <h3 className="text-2xl font-bold text-secondary mb-2">Ultra</h3>
-              <p className="text-gray-600 mb-6">Pour les experts</p>
+              <p className="text-gray-600 mb-6">Analyses plus longues et fonctionnalités avancées</p>
               <div className="text-4xl font-bold text-primary mb-6">5€</div>
               {userTier === 'ultra' && (
                 <div className="bg-primary/10 text-primary text-sm py-1 px-3 rounded-full mb-6 inline-block">
