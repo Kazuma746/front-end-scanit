@@ -214,14 +214,16 @@ export default function AnalyzePage() {
           loading ? (
             <AnalysisLoading />
           ) : (
-            <PreparationStep
-              file={file}
-              conversionStep={conversionStep}
-              loading={loading}
-              error={error}
-              onImageGenerated={handleImageGenerated}
-              onAnalyze={handleAnalyze}
-            />
+            {file && (
+              <PreparationStep
+                file={file}
+                conversionStep={conversionStep}
+                loading={loading}
+                error={error}
+                onImageGenerated={handleImageGenerated}
+                onAnalyze={handleAnalyze}
+              />
+            )}
           )
         ) : (
           <div className="md:grid md:grid-cols-2 md:gap-8">
