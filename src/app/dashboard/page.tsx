@@ -53,7 +53,7 @@ export default function DashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:7000/api/cv/stats', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/cv/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
   const handleDelete = async (cvId: string) => {
     try {
-      const response = await fetch(`http://localhost:7000/api/cv/${cvId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/cv/${cvId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

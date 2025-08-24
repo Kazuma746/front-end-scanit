@@ -1,6 +1,6 @@
 import { Application, ApplicationStats, CreateApplicationData, UpdateApplicationData } from '@/types/application';
 
-const API_BASE_URL = 'http://localhost:7000';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL || '').replace(/\/$/, '');
 
 class ApplicationService {
   private getAuthHeaders(token: string) {
