@@ -106,20 +106,7 @@ export default function PricingPage() {
       console.log(err);
     })        
 
-
-    // fetch(`http://localhost:9000/create-checkout-session`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(product)
-    // }).then(async (paymentResponse) => {
-
-    //   let content = await paymentResponse.json();
-    //   if (content.url) {
-    //     window.location.href = content.url;
-    //   }
-    // }).catch((err) => {
-    //   console.log(err);
-    // })
+    
   }
 
   return (
