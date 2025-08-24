@@ -539,7 +539,11 @@ export default function DashboardPage() {
             setIsApplicationFormOpen(false);
             setEditingApplication(null);
           }}
-          onSubmit={editingApplication ? handleUpdateApplication : handleCreateApplication}
+          onSubmit={(data) => (
+            editingApplication
+              ? handleUpdateApplication(data as UpdateApplicationData)
+              : handleCreateApplication(data as CreateApplicationData)
+          )}
           application={editingApplication}
           cvOptions={stats.recentAnalysesList.map(cv => ({ _id: cv._id, name: cv.name }))}
           isLoading={applicationLoading}
