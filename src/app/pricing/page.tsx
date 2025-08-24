@@ -88,8 +88,8 @@ export default function PricingPage() {
 
     console.log("product : " + JSON.stringify(product));
 
-
-    fetch(`http://localhost:9000/create-checkout-session`, {
+    
+    fetch(`${process.env.PAYMENT_SERVICE_URL}/create-checkout-session`, { 
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
