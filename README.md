@@ -7,6 +7,9 @@ https://github.com/EdouardLk/AuthService-scanit
 https://github.com/EdouardLk/NotificationService-scanit 
 https://github.com/EdouardLk/PaymentService-scanit
 
+URL SITE 
+https://scanit-app.vercel.app/
+
 ## Getting Started
 
 First, run the development server:
