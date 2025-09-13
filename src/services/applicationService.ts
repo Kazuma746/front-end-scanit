@@ -11,7 +11,7 @@ class ApplicationService {
   }
 
   async getUserApplications(token: string): Promise<Application[]> {
-    const response = await fetch(`${API_BASE_URL}/api/applications/user`, {
+    const response = await fetch(`${API_BASE_URL}/applications/user`, {
       headers: this.getAuthHeaders(token)
     });
 
@@ -23,7 +23,7 @@ class ApplicationService {
   }
 
   async getApplicationStats(token: string): Promise<ApplicationStats> {
-    const response = await fetch(`${API_BASE_URL}/api/applications/stats`, {
+    const response = await fetch(`${API_BASE_URL}/applications/stats`, {
       headers: this.getAuthHeaders(token)
     });
 
@@ -35,7 +35,7 @@ class ApplicationService {
   }
 
   async createApplication(token: string, data: CreateApplicationData): Promise<Application> {
-    const response = await fetch(`${API_BASE_URL}/api/applications/create`, {
+    const response = await fetch(`${API_BASE_URL}/applications/create`, {
       method: 'POST',
       headers: this.getAuthHeaders(token),
       body: JSON.stringify(data)
@@ -50,7 +50,7 @@ class ApplicationService {
   }
 
   async updateApplication(token: string, id: string, data: UpdateApplicationData): Promise<Application> {
-    const response = await fetch(`${API_BASE_URL}/api/applications/update/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/applications/update/${id}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(token),
       body: JSON.stringify(data)
@@ -65,7 +65,7 @@ class ApplicationService {
   }
 
   async deleteApplication(token: string, id: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/api/applications/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/applications/${id}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(token)
     });
@@ -77,7 +77,7 @@ class ApplicationService {
   }
 
   async getApplicationById(token: string, id: string): Promise<Application> {
-    const response = await fetch(`${API_BASE_URL}/api/applications/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/applications/${id}`, {
       headers: this.getAuthHeaders(token)
     });
 
