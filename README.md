@@ -1,11 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 URL SERVICE 
-https://github.com/Kazuma746/front-end-scanit 
-https://github.com/EdouardLk/back-end-scanit 
-https://github.com/EdouardLk/AuthService-scanit 
-https://github.com/EdouardLk/NotificationService-scanit 
-https://github.com/EdouardLk/PaymentService-scanit
+- https://github.com/Kazuma746/front-end-scanit 
+- https://github.com/EdouardLk/back-end-scanit 
+- https://github.com/EdouardLk/AuthService-scanit 
+- https://github.com/EdouardLk/NotificationService-scanit 
+- https://github.com/EdouardLk/PaymentService-scanit
 
 URL SITE 
 https://scanit-app.vercel.app/
