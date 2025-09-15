@@ -32,7 +32,7 @@ const FAQ = () => {
     },
     {
       question: "Les futures améliorations prévues ?",
-      answer: "Nous envisageons plus de jetons pour des analyses plus longues, des rapports détaillés et d'autres avantages pour les comptes avec crédits."
+      answer: "Nous envisageons plus de jetons pour des analyses plus longues, des rapports détaillés et d'autres avantages !"
     }
   ], []);
 

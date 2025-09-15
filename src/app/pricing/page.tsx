@@ -15,13 +15,13 @@ type PlanFeature = {
 
 const features: PlanFeature[] = [
   {
-    name: "Analyses de CV (limitées en gratuit, +crédits)",
+    name: "Analyses de CV",
     freemium: true,
     premium: true,
     ultra: true
   },
   {
-    name: "Suivi de candidatures (limité en gratuit, +crédits)",
+    name: "Suivi de candidatures (inclus au départ, puis via crédits)",
     freemium: true,
     premium: true,
     ultra: true
@@ -33,7 +33,7 @@ const features: PlanFeature[] = [
     ultra: true
   },
   {
-    name: "Analyses plus longues (plus de jetons)",
+    name: "Analyses plus longues (coût en crédits)",
     freemium: false,
     premium: true,
     ultra: true
@@ -114,10 +114,10 @@ export default function PricingPage() {
       <Header />
       <main className="container py-12">
         <h1 className="text-3xl font-bold text-secondary text-center mb-4">
-          Nos Offres
+          Packs de crédits
         </h1>
         <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-          Commencez gratuitement. Des crédits optionnels vous donnent accès à davantage d’analyses, à un suivi étendu et à des analyses plus longues.
+          Commencez gratuitement avec 10 analyses et le suivi de CV inclus. Ajoutez des crédits à partir de 2€ quand vous le souhaitez.
         </p>
 
         {/* Cards Section */}
@@ -125,30 +125,21 @@ export default function PricingPage() {
           {/* Freemium Card */}
           <div className={`bg-white rounded-xl shadow-lg p-8 border-2 ${userTier === 'freemium' ? 'border-primary' : 'border-transparent'}`}>
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-secondary mb-2">Freemium</h3>
-              <p className="text-gray-600 mb-6">Pour commencer</p>
+              <h3 className="text-2xl font-bold text-secondary mb-2">Gratuit</h3>
+              <p className="text-gray-600 mb-6">10 analyses offertes + suivi de CV</p>
               <div className="text-4xl font-bold text-primary mb-6">0€</div>
-              {userTier === 'freemium' && (
-                <div className="bg-primary/10 text-primary text-sm py-1 px-3 rounded-full mb-6 inline-block">
-                  Votre abonnement actuel
-                </div>
-              )}
             </div>
           </div>
 
           {/* Premium Card */}
-          <div className={`bg-white rounded-xl shadow-lg p-8 border-2 ${userTier === 'premium' ? 'border-primary' : 'border-transparent'}`}>
+          <div className={`bg-white rounded-xl shadow-lg p-8 border-2 ${userTier === 'premium' ? 'border-primary' : 'border-transparent'} relative`}>
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-secondary mb-2">Premium</h3>
-              <p className="text-gray-600 mb-6">Idéal pour un usage régulier (plus de crédits, plus de suivi)</p>
+              <span className="absolute top-3 right-3 bg-secondary/10 text-secondary text-xs leading-tight py-0.5 px-2 rounded-full">Conseillé</span>
+              <h3 className="text-2xl font-bold text-secondary mb-2">Pack 2€</h3>
+              <p className="text-gray-600 mb-6">Crédits pour analyses et suivi supplémentaires</p>
               <div className="text-4xl font-bold text-primary mb-6">2€</div>
-              {userTier === 'premium' && (
-                <div className="bg-primary/10 text-primary text-sm py-1 px-3 rounded-full mb-6 inline-block">
-                  Votre abonnement actuel
-                </div>
-              )}
               <button onClick={() => { buyPremium("premium") }} className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors">
-                Passer au Premium
+                Acheter pour 2€
               </button>
             </div>
           </div>
@@ -156,16 +147,11 @@ export default function PricingPage() {
           {/* Ultra Card */}
           <div className={`bg-white rounded-xl shadow-lg p-8 border-2 ${userTier === 'ultra' ? 'border-primary' : 'border-transparent'}`}>
             <div className="text-center">
-              <h3 className="text-2xl font-bold text-secondary mb-2">Ultra</h3>
-              <p className="text-gray-600 mb-6">Analyses plus longues et fonctionnalités avancées</p>
+              <h3 className="text-2xl font-bold text-secondary mb-2">Pack 5€</h3>
+              <p className="text-gray-600 mb-6">Crédits pour analyses longues et options avancées</p>
               <div className="text-4xl font-bold text-primary mb-6">5€</div>
-              {userTier === 'ultra' && (
-                <div className="bg-primary/10 text-primary text-sm py-1 px-3 rounded-full mb-6 inline-block">
-                  Votre abonnement actuel
-                </div>
-              )}
               <button onClick={() => { buyPremium("ultra") }} className="w-full bg-secondary text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors">
-                Passer à l'Ultra
+                Acheter pour 5€
               </button>
             </div>
           </div>
@@ -181,9 +167,9 @@ export default function PricingPage() {
               <thead>
                 <tr className="bg-gray-50">
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Fonctionnalité</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Freemium</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Premium</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Ultra</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Gratuit</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">2€</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">5€</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
