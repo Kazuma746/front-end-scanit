@@ -133,6 +133,36 @@ export const verifyEmail = createAsyncThunk(
   }
 );
 
+export const refreshUser = createAsyncThunk(
+  'auth/refreshUser',
+  async (args: { userId: string}, { getState, rejectWithValue }) => {
+    try {
+        const state = getState() as any;
+        const token = state.auth.token as string | null;
+        if (!token) {
+            throw new Error('Token non trouvé');
+        }
+        const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/${args.userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Erreur lors de la mise à jour du profil');
+        }
+
+        return data;
+    } catch (error: any) {
+        return rejectWithValue(error.message || 'Une erreur est survenue lors de la mise à jour du profil');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -197,6 +227,18 @@ const authSlice = createSlice({
         }
       })
       .addCase(verifyEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(refreshUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(refreshUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(refreshUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

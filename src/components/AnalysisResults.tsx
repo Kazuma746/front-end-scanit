@@ -24,10 +24,10 @@ interface AnalysisResultsProps {
 }
 
 const AnalysisResults = ({ file, analysis, scores }: AnalysisResultsProps) => {
-  console.log('=== AnalysisResults props ===');
-  console.log('File:', file);
-  console.log('Analysis:', analysis);
-  console.log('Scores bruts:', scores);
+  //console.log('=== AnalysisResults props ===');
+  // console.log('File:', file);
+  // console.log('Analysis:', analysis);
+  // console.log('Scores bruts:', scores);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
