@@ -13,7 +13,7 @@ import AnalysisChat from '@/components/AnalysisChat';
 import AnalysisLoading from '@/components/AnalysisLoading';
 import { useDropzone } from 'react-dropzone';
 import { FiUpload, FiRefreshCw } from 'react-icons/fi';
-import { refreshUser} from '@/store/slices/authSlice';
+import { updateUser} from '@/store/slices/authSlice';
 
 export default function AnalyzePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -88,7 +88,7 @@ export default function AnalyzePage() {
 
       console.log('Succès ! Nouveau solde :', body.credits);
 
-      await dispatch(refreshUser({userId : user.id}))
+      await dispatch(updateUser({credits : body.credits}))
 
       console.log('=== Début analyse ===');
       console.log('Données envoyées:', {
