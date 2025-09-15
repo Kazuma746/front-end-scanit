@@ -94,6 +94,8 @@ const FAQ = () => {
     );
   });
 
+  AccordionItem.displayName = 'AccordionItem';
+
   return (
     <section id="faq" className="section bg-white">
       <div className="container">
