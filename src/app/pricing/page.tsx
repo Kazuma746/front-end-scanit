@@ -89,7 +89,7 @@ export default function PricingPage() {
     console.log("product : " + JSON.stringify(product));
 
     
-    fetch(`${process.env.PAYMENT_SERVICE_URL}/create-checkout-session`, { 
+    fetch(`${process.env.NEXT_PUBLIC_PAYMENT_SERVICE_URL}/create-checkout-session`, { 
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
