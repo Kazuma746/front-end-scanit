@@ -61,29 +61,31 @@ export default function AnalyzePage() {
       return;
     }
 
-    // on retire 50 crédits du compte avant d'analyser c'est pas la fête poto 
-    fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/spendCredits`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ userId: user.id })
-    }).then(data => {
-
-      if (!data.ok) {
-        console.log(data);
-        
-        throw new Error('Pas assez de crédits');        
-      };
-    }).catch((err) => {
-      console.log(err);
-      setError(err.message);
-    });
-
     try {
       setLoading(true);
       setError(null);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/spendCredits`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId: user.id })
+      });
+
+      const body = await res.json();
+      console.log(body);
+      if (!res.ok) {
+        throw new Error(body.message || 'Erreur HTTP');
+      }
+      
+      // console.log(body);
+      // if (!body.ok) {
+      //   throw new Error(body.message || 'Pas assez de crédits');
+      // }
+
+      console.log('Succès ! Nouveau solde :', body.credits);
 
       console.log('=== Début analyse ===');
       console.log('Données envoyées:', {
@@ -105,16 +107,12 @@ export default function AnalyzePage() {
         }),
       });
 
-
-      console.log('Statut de la réponse:', response.status);
       const data = await response.json();
-      console.log('Réponse reçue:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Erreur lors de l\'analyse');
       }
 
-      // Mettre à jour le store Redux avec les résultats
       dispatch(setAnalysisData({
         imageBase64,
         analysis: data.analysis,
@@ -122,7 +120,6 @@ export default function AnalyzePage() {
         sessionId: data.sessionId
       }));
 
-      // Ajouter le premier message du chat
       dispatch(addChatMessage({
         role: 'assistant',
         content: data.analysis
@@ -134,6 +131,7 @@ export default function AnalyzePage() {
     } finally {
       setLoading(false);
     }
+
   };
 
   const handleChatSubmit = async (e: React.FormEvent) => {

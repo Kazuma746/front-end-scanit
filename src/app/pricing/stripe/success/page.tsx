@@ -1,7 +1,21 @@
-import React from 'react';
+'use client';
 import { FaRegCircleCheck } from 'react-icons/fa6';
+import React, { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { refreshUser } from '@/store/slices/authSlice';
 
 export default function Success() {
+
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth );
+
+  useEffect(()=>{
+    if(user?.id){
+      dispatch(refreshUser({userId : user.id}))
+    }
+  },[dispatch, user?.id]
+);
+
   return (
     <div className="flex items-center justify-center h-screen bg-green-50">
       <div className="bg-white p-8 rounded-2xl shadow-md text-center max-w-md">
