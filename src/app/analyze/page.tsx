@@ -25,16 +25,16 @@ export default function AnalyzePage() {
   const imageRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const dispatch = useAppDispatch();
-  
+
   // Récupérer l'état depuis Redux
   const { user, token, isLoading: authLoading } = useAppSelector((state) => state.auth);
-  const { 
-    imageBase64, 
-    analysis, 
-    scores, 
-    chatHistory, 
-    sessionId, 
-    conversionStep 
+  const {
+    imageBase64,
+    analysis,
+    scores,
+    chatHistory,
+    sessionId,
+    conversionStep
   } = useAppSelector((state) => state.analysis);
 
   const handleFileSelect = (selectedFile: File) => {
@@ -61,38 +61,59 @@ export default function AnalyzePage() {
       return;
     }
 
+    // on retire 50 crédits du compte avant d'analyser c'est pas la fête poto 
+    fetch(`${process.env.NEXT_PUBLIC_DATABASE_SERVICE_URL}/users/spendCredits`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ userId: user.id })
+    }).then(data => {
+
+      if (!data.ok) {
+        console.log(data);
+        
+        throw new Error('Pas assez de crédits');        
+      };
+    }).catch((err) => {
+      console.log(err);
+      setError(err.message);
+    });
+
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log('=== Début analyse ===');
       console.log('Données envoyées:', {
         imageBase64: imageBase64.substring(0, 50) + '...',
         userId: user.id,
         fileName: file?.name
       });
-      
+
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           imageBase64,
           userId: user.id,
           fileName: file?.name
         }),
       });
-      
+
+
       console.log('Statut de la réponse:', response.status);
       const data = await response.json();
       console.log('Réponse reçue:', data);
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'Erreur lors de l\'analyse');
       }
-      
+
       // Mettre à jour le store Redux avec les résultats
       dispatch(setAnalysisData({
         imageBase64,
@@ -100,13 +121,13 @@ export default function AnalyzePage() {
         scores: data.scores,
         sessionId: data.sessionId
       }));
-      
+
       // Ajouter le premier message du chat
       dispatch(addChatMessage({
         role: 'assistant',
         content: data.analysis
       }));
-      
+
     } catch (err: any) {
       console.error('Erreur complète:', err);
       setError(`Erreur: ${err.message || 'Une erreur est survenue'}`);
@@ -178,11 +199,11 @@ export default function AnalyzePage() {
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!imageRef.current) return;
-    
+
     const rect = imageRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
+
     setMousePosition({ x, y });
   };
 
@@ -207,7 +228,7 @@ export default function AnalyzePage() {
         <h1 className="text-3xl font-bold text-secondary text-center mb-10">
           Analyse de CV
         </h1>
-        
+
         {!file && !analysis ? (
           <FileUpload onFileSelect={handleFileSelect} />
         ) : !analysis ? (
@@ -243,7 +264,7 @@ export default function AnalyzePage() {
                   </button>
                 </div>
                 {imageBase64 && (
-                  <div 
+                  <div
                     ref={imageRef}
                     className="flex-1 relative overflow-hidden cursor-zoom-in"
                     onMouseMove={handleMouseMove}
@@ -270,10 +291,10 @@ export default function AnalyzePage() {
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-8 overflow-y-auto max-h-[calc(100vh-200px)]">
-              <AnalysisResults 
-                file={file} 
-                analysis={analysis} 
-                scores={scores} 
+              <AnalysisResults
+                file={file}
+                analysis={analysis}
+                scores={scores}
               />
               <AnalysisChat
                 chatHistory={chatHistory}
