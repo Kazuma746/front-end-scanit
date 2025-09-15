@@ -1,26 +1,19 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 
 const FAQ = () => {
   type FaqItem = { question: string; answer: string };
 
-  const [openItems, setOpenItems] = useState<Set<number>>(new Set());
+  // Autorise l'ouverture multiple via un Set d'index
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const toggleAccordion = (index: number) => {
-    setOpenItems(prev => {
-      const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
-      return next;
-    });
-  };
+  const handleToggle = useCallback((index: number) => {
+    setOpenIndex(prev => (prev === index ? null : index));
+  }, []);
 
-  const faqItems: FaqItem[] = [
+  const faqItems: FaqItem[] = useMemo(() => [
     {
       question: "Comment fonctionnent l'analyse et le suivi ?",
       answer: "Téléversez votre CV pour obtenir des recommandations compatibles ATS, puis enregistrez et suivez vos candidatures (statuts, relances, notes) dans un tableau de bord."
@@ -41,9 +34,9 @@ const FAQ = () => {
       question: "Les futures améliorations prévues ?",
       answer: "Nous envisageons plus de jetons pour des analyses plus longues, des rapports détaillés et d'autres avantages pour les comptes avec crédits."
     }
-  ];
+  ], []);
 
-  const AccordionItem = ({ item, isOpen, onToggle }: { item: FaqItem; isOpen: boolean; onToggle: () => void }) => {
+  const AccordionItem = memo(({ item, isOpen, onToggle, index }: { item: FaqItem; isOpen: boolean; onToggle: (index: number) => void; index: number }) => {
     const contentRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState<string | number>(0);
@@ -66,23 +59,40 @@ const FAQ = () => {
       }
     }, [isOpen]);
 
+    const panelId = `faq-panel-${index}`;
+    const buttonId = `faq-button-${index}`;
+
     return (
       <div className="mb-2 border-b border-gray-200">
         <button
+          id={buttonId}
           className="flex justify-between items-center w-full text-left font-medium text-lg py-4 focus:outline-none"
-          onClick={onToggle}
+          onClick={() => onToggle(index)}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
         >
           <span className="text-secondary">{item.question}</span>
           <FiChevronDown className={`text-primary transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
-        <div ref={wrapperRef} style={{ height, transition: 'height 300ms ease' }} className="overflow-hidden">
-          <div ref={contentRef} className="pb-4 text-gray-600">
+        <div
+          id={panelId}
+          role="region"
+          aria-labelledby={buttonId}
+          ref={wrapperRef}
+          style={{ height, transition: 'height 300ms ease', willChange: 'height' }}
+          className="overflow-hidden"
+        >
+          <div
+            ref={contentRef}
+            className="pb-4 text-gray-600"
+            style={{ opacity: isOpen ? 1 : 0, transition: 'opacity 200ms ease 80ms' }}
+          >
             {item.answer}
           </div>
         </div>
       </div>
     );
-  };
+  });
 
   return (
     <section id="faq" className="section bg-white">
@@ -99,8 +109,9 @@ const FAQ = () => {
             <AccordionItem
               key={index}
               item={item}
-              isOpen={openItems.has(index)}
-              onToggle={() => toggleAccordion(index)}
+              isOpen={openIndex === index}
+              onToggle={handleToggle}
+              index={index}
             />
           ))}
         </div>
