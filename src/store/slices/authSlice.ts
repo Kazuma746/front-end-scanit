@@ -156,7 +156,23 @@ export const refreshUser = createAsyncThunk(
             throw new Error(data.message || 'Erreur lors de la mise à jour du profil');
         }
 
-        return data;
+        const apiUser = (data && typeof data === 'object' && 'user' in data) ? (data.user as any) : data;
+        const currentUser = state.auth.user as any | null;
+
+        const normalizedUser: UserData = {
+          id: apiUser?.id || apiUser?._id || currentUser?.id || args.userId,
+          email: apiUser?.email ?? currentUser?.email ?? '',
+          firstName: apiUser?.firstName ?? currentUser?.firstName ?? '',
+          lastName: apiUser?.lastName ?? currentUser?.lastName ?? '',
+          userName: apiUser?.userName ?? apiUser?.username ?? currentUser?.userName ?? '',
+          phone: apiUser?.phone ?? currentUser?.phone ?? '',
+          role: apiUser?.role ?? currentUser?.role ?? 'user',
+          tier: apiUser?.tier ?? currentUser?.tier ?? 'freemium',
+          credits: typeof apiUser?.credits === 'number' ? apiUser.credits : (currentUser?.credits ?? 0),
+          isVerified: Boolean(apiUser?.isVerified ?? currentUser?.isVerified ?? false)
+        };
+
+        return normalizedUser;
     } catch (error: any) {
         return rejectWithValue(error.message || 'Une erreur est survenue lors de la mise à jour du profil');
     }

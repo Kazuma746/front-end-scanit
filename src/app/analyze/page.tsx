@@ -13,6 +13,7 @@ import AnalysisChat from '@/components/AnalysisChat';
 import AnalysisLoading from '@/components/AnalysisLoading';
 import { useDropzone } from 'react-dropzone';
 import { FiUpload, FiRefreshCw } from 'react-icons/fi';
+import { refreshUser} from '@/store/slices/authSlice';
 
 export default function AnalyzePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -78,7 +79,7 @@ export default function AnalyzePage() {
       console.log(body);
       if (!res.ok) {
         throw new Error(body.message || 'Erreur HTTP');
-      }
+      }    
       
       // console.log(body);
       // if (!body.ok) {
@@ -86,6 +87,8 @@ export default function AnalyzePage() {
       // }
 
       console.log('Succès ! Nouveau solde :', body.credits);
+
+      await dispatch(refreshUser({userId : user.id}))
 
       console.log('=== Début analyse ===');
       console.log('Données envoyées:', {
