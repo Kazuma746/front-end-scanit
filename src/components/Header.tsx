@@ -79,9 +79,7 @@ const Header = () => {
           <Link href="/pricing" className="font-medium hover:text-primary transition-colors">
             Tarifs
           </Link>
-          <Link href="/contact" className="font-medium hover:text-primary transition-colors">
-            Contact
-          </Link>
+          
           
           <UserButton 
             user={user}
@@ -138,13 +136,7 @@ const Header = () => {
             >
               Tarifs
             </Link>
-            <Link 
-              href="/contact" 
-              className="font-medium p-2 hover:bg-gray-100 rounded-md" 
-              onClick={toggleMenu}
-            >
-              Contact
-            </Link>
+            
             
             <UserButton 
               user={user}

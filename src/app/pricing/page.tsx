@@ -117,7 +117,7 @@ export default function PricingPage() {
           Packs de crédits
         </h1>
         <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-          Commencez gratuitement avec 10 analyses et le suivi de CV inclus. Ajoutez des crédits à partir de 2€ quand vous le souhaitez.
+          Commencez gratuitement avec 5 analyses et le suivi de CV inclus. Ajoutez des crédits à partir de 2€ quand vous le souhaitez.
         </p>
 
         {/* Cards Section */}
@@ -126,7 +126,7 @@ export default function PricingPage() {
           <div className={`bg-white rounded-xl shadow-lg p-8 border-2 ${userTier === 'freemium' ? 'border-primary' : 'border-transparent'}`}>
             <div className="text-center">
               <h3 className="text-2xl font-bold text-secondary mb-2">Gratuit</h3>
-              <p className="text-gray-600 mb-6">10 analyses offertes + suivi de CV</p>
+              <p className="text-gray-600 mb-6">5 analyses offertes + suivi de CV</p>
               <div className="text-4xl font-bold text-primary mb-6">0€</div>
             </div>
           </div>
