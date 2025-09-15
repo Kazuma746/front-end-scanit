@@ -22,7 +22,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <div className="bg-gradient-to-br from-secondary/10 via-dark/5 to-dark/10 border border-gray-100 rounded-xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div>
               <h3 className="text-xl font-semibold text-dark">Découvrez nos 10 conseils clés</h3>
               <p className="text-gray-600 mt-1">Sources incluses. Mise en forme claire et actions pratiques.</p>

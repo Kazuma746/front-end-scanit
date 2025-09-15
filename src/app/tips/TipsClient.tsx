@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 type Tip = {
   id: number;
-  category: 'CV' | 'Lettre' | 'Profil' | 'ATS' | 'Recherche' | 'STAR' | 'Questions' | 'Présentation' | 'Stress' | 'Suivi';
+  category: 'CV' | 'Lettre' | 'Profil' | 'ATS' | 'Recherche' | 'STAR' | 'Questions' | 'Présentation' | 'Stress' | 'Suivi' | 'Test';
   title: string;
   description: string;
   sourceLabel: string;
@@ -13,19 +13,18 @@ type Tip = {
 };
 
 const tipsData: Tip[] = [
-  { id: 1, category: 'CV', title: 'Personnalisez votre CV pour chaque offre', description: "Adaptez l’intitulé, le résumé et les expériences aux mots-clés et attentes de l’annonce.", sourceLabel: 'WTTJ – CV (dossier)', sourceUrl: 'https://www.welcometothejungle.com/fr/tags/cv' },
+  { id: 1, category: 'CV', title: 'Personnalisez votre CV pour chaque offre', description: "Adaptez l’intitulé, le résumé et les expériences aux mots-clés et attentes de l’annonce.", sourceLabel: 'HELLOCV – CV (dossier)', sourceUrl: 'https://hellocv.com/conseils-realisation-cv/faut-il-adapter-son-cv-en-fonction-de-chaque-offre-d-emploi' },
   { id: 2, category: 'Lettre', title: 'Rédigez une lettre de motivation ciblée', description: "Expliquez votre valeur ajoutée pour l’entreprise et illustrez par des exemples concrets.", sourceLabel: 'APEC – Optimiser votre candidature', sourceUrl: 'https://www.apec.fr/candidat/optimiser-votre-candidature.html' },
-  { id: 3, category: 'Profil', title: 'Optimisez votre présence en ligne (LinkedIn)', description: "Titre clair, résumé orienté impact, mots-clés du secteur et réalisations mesurables.", sourceLabel: 'WTTJ – Optimiser son profil LinkedIn', sourceUrl: 'https://www.welcometothejungle.com/fr/articles/optimiser-profil-linkedin-trouver-emploi' },
-  { id: 4, category: 'ATS', title: 'Structure compatible ATS', description: "Misez sur une mise en forme simple, libellés standards et mots-clés pertinents.", sourceLabel: 'WTTJ – CV (dossier)', sourceUrl: 'https://www.welcometothejungle.com/fr/tags/cv' },
-  { id: 5, category: 'Recherche', title: 'Renseignez-vous sur l’entreprise', description: "Mission, produits, valeurs, actualités : montrez que votre candidature est informée.", sourceLabel: 'WTTJ – Entretien (dossier)', sourceUrl: 'https://www.welcometothejungle.com/fr/tags/entretien' },
+  { id: 3, category: 'Profil', title: 'Optimisez votre présence en ligne (LinkedIn)', description: "Titre clair, résumé orienté impact, mots-clés du secteur et réalisations mesurables.", sourceLabel: 'LinkedIn – Optimiser son profil LinkedIn', sourceUrl: 'https://www.linkedin.com/pulse/trucs-et-astuces-pour-am%C3%A9liorer-votre-pr%C3%A9sence-en-ligne-iwipe/' },
+  { id: 4, category: 'Test', title: 'Test : êtes-vous bon en entretien ?', description: "En études, en poste, en recherche d’emploi ou à l’écoute du marché, quelle que soit votre situation, vous avez déjà été ou serez forcément confronté à l’entretien d’embauche à un moment de votre carrière.", sourceLabel: 'WTTJ – CV (dossier)', sourceUrl: 'https://www.welcometothejungle.com/fr/articles/test-etes-vous-bon-entretien-embauche'},
+  { id: 5, category: 'Recherche', title: 'Renseignez-vous sur l’entreprise', description: "Mission, produits, valeurs, actualités : montrez que votre candidature est informée.", sourceLabel: 'Epimoni – Entretien (dossier)', sourceUrl: 'https://www.epimoni30.com/blog/questions-frequentes-en-entretien/que-savez-vous-de-notre-entreprise/#pourquoi-cette-question-est-elle-si-importante' },
   { id: 6, category: 'STAR', title: 'Préparez des réponses avec la méthode STAR', description: "Situation, Tâche, Action, Résultat : illustrez vos compétences par des cas mesurables.", sourceLabel: 'WTTJ – Bien préparer son entretien', sourceUrl: 'https://www.welcometothejungle.com/fr/articles/conseils-preparer-entretien-embauche' },
-  { id: 7, category: 'Questions', title: 'Listez des questions pertinentes à poser', description: "Mission, priorités, KPIs, outils, culture : poser des questions montre votre engagement.", sourceLabel: 'WTTJ – Questions à poser', sourceUrl: 'https://www.welcometothejungle.com/fr/articles/entretien-embauche-questions-a-poser' },
-  { id: 8, category: 'Présentation', title: 'Soignez votre présentation et votre timing', description: "Tenue adaptée, ponctualité, écoute active et réponses concises.", sourceLabel: 'WTTJ – Bien préparer son entretien', sourceUrl: 'https://www.welcometothejungle.com/fr/articles/conseils-preparer-entretien-embauche' },
+  { id: 7, category: 'Questions', title: 'Listez des questions pertinentes à poser', description: "Mission, priorités, KPIs, outils, culture.", sourceLabel: 'Noota – Indicateurs de performance', sourceUrl: 'https://www.noota.io/fr/blog/indicateurs-performance-entretien-embauche' },
   { id: 9, category: 'Stress', title: 'Gérez le stress avant et pendant l’entretien', description: "Respiration, reformulation, silences maîtrisés : gardez le cap.", sourceLabel: 'WTTJ – Bien préparer son entretien', sourceUrl: 'https://www.welcometothejungle.com/fr/articles/conseils-preparer-entretien-embauche' },
-  { id: 10, category: 'Suivi', title: 'Envoyez un message de remerciement', description: "Réaffirmez votre motivation et proposez de fournir des éléments complémentaires.", sourceLabel: 'WTTJ – Entretien (dossier)', sourceUrl: 'https://www.welcometothejungle.com/fr/tags/entretien' },
+  { id: 10, category: 'Suivi', title: 'Envoyez un message de remerciement', description: "Réaffirmez votre motivation et proposez de fournir des éléments complémentaires.", sourceLabel: 'Étudiant', sourceUrl: 'https://www.letudiant.fr/jobsstages/lettres-de-motivation_1/exemples-de-mails-de-remerciement-pour-un-entretien-d-embauche.html' },
 ];
 
-const categoryOrder: Tip['category'][] = ['CV', 'Lettre', 'Profil', 'ATS', 'Recherche', 'STAR', 'Questions', 'Présentation', 'Stress', 'Suivi'];
+const categoryOrder: Tip['category'][] = ['CV', 'Lettre', 'Profil', 'ATS', 'Recherche', 'STAR', 'Questions', 'Présentation', 'Stress', 'Suivi', 'Test'];
 
 export default function TipsClient() {
   const [selected, setSelected] = useState<Set<Tip['category']>>(new Set());
